@@ -9,6 +9,7 @@ import Link from 'next/link';
 const navLinks = [
   { label: 'Beranda', href: '#home' },
   { label: 'Fitur', href: '#features' },
+  { label: 'Marketplace', href: '/marketplace' },
   { label: 'Tentang', href: '#about' },
   { label: 'Kontak', href: '#contact' },
 ];
