@@ -23,7 +23,7 @@ export const CTASection = () => {
   };
 
   return (
-    <section className="relative py-32 overflow-hidden">
+    <section id="contact" className="relative py-32 overflow-hidden">
       {/* Animated Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 dark:from-slate-950 dark:via-emerald-950 dark:to-teal-950">
         <motion.div
@@ -91,7 +91,7 @@ export const CTASection = () => {
           >
             Siap Memulai Perjalanan
             <br />
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+            <span className="text-emerald-300">
               Digitalisasi Apotek?
             </span>
           </motion.h2>

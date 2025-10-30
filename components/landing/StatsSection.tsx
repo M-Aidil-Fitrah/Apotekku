@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { TrendingUp, Package, Award } from 'lucide-react';
+import { TrendingUp, Package, Award, Users, Star, BarChart } from 'lucide-react';
 import { SectionTitle } from '@/components/shared/SectionTitle';
+import { Parallax } from '@/components/shared/Parallax';
 
 const stats = [
   { icon: Package, value: 5000, suffix: '+', label: 'Produk Tersedia', color: 'text-emerald-500' },
@@ -51,17 +52,23 @@ function Counter({ target, suffix }: { target: number; suffix: string }) {
 
 export const StatsSection = () => {
   return (
-    <section className="relative py-24 bg-slate-50 dark:bg-slate-950 overflow-hidden">
-      {/* Parallax Background */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="absolute inset-0"
-      >
-        <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
-      </motion.div>
+    <section id="about" className="relative py-24 bg-slate-50 dark:bg-slate-950 overflow-hidden">
+      {/* Parallax Background - Fixed in section */}
+      <div className="absolute top-10 left-10">
+        <Parallax speed={0.3}>
+          <div className="w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl" />
+        </Parallax>
+      </div>
+      <div className="absolute bottom-10 right-10">
+        <Parallax speed={0.4} direction="down">
+          <div className="w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
+        </Parallax>
+      </div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <Parallax speed={0.2}>
+          <div className="w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-3xl" />
+        </Parallax>
+      </div>
 
       <div className="container mx-auto px-4 relative z-10">
         <SectionTitle

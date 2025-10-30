@@ -74,25 +74,25 @@ export const Footer = () => {
           {/* Brand Section */}
           <motion.div variants={item} className="col-span-2">
             <div className="mb-6">
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              <h3 className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">
                 Apotekku
               </h3>
-              <p className="text-sm text-slate-400 mt-2">
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                 Solusi manajemen apotek modern untuk kesehatan Indonesia yang lebih baik
               </p>
             </div>
 
             <div className="space-y-3">
-              <a href="mailto:info@apotekku.com" className="flex items-center gap-2 text-sm hover:text-emerald-400 transition-colors">
+              <a href="mailto:info@apotekku.com" className="flex items-center gap-2 text-sm hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors text-slate-700 dark:text-slate-300">
                 <Mail className="w-4 h-4" />
                 <span>info@apotekku.com</span>
               </a>
-              <a href="tel:+628123456789" className="flex items-center gap-2 text-sm hover:text-emerald-400 transition-colors">
+              <a href="tel:+628123456789" className="flex items-center gap-2 text-sm hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors text-slate-700 dark:text-slate-300">
                 <Phone className="w-4 h-4" />
                 <span>+62 812-3456-789</span>
               </a>
-              <div className="flex items-start gap-2 text-sm">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0" />
                 <span>Jl. Kesehatan No. 123, Jakarta Selatan, DKI Jakarta 12345</span>
               </div>
             </div>

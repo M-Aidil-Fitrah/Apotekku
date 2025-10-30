@@ -30,7 +30,7 @@ export const SectionTitle = ({ subtitle, title, description, className }: Sectio
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent"
+        className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-slate-900 dark:text-white"
       >
         {title}
       </motion.h2>
@@ -40,7 +40,7 @@ export const SectionTitle = ({ subtitle, title, description, className }: Sectio
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg text-slate-600 dark:text-slate-400"
+          className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed"
         >
           {description}
         </motion.p>

@@ -1,14 +1,24 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { gsap } from 'gsap';
-import { Pill, Sparkles, Shield } from 'lucide-react';
+import { Pill, Sparkles, Shield, Clock, Heart, Zap, Award } from 'lucide-react';
 import { Button } from '@/components/shared/Button';
+import { Parallax } from '@/components/shared/Parallax';
 
 export const HeroSection = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const floatingRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0]);
 
   useEffect(() => {
     if (!heroRef.current || !floatingRef.current) return;
@@ -56,19 +66,65 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-950 dark:via-emerald-950 dark:to-teal-950">
-      {/* Animated Background Gradient */}
-      <div className="gradient-bg absolute inset-0 opacity-30 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600" style={{ backgroundSize: '200% 200%' }} />
+    <section ref={sectionRef} id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950 pt-20">
+      {/* Animated Background Gradient with Parallax */}
+      <motion.div 
+        style={{ y, opacity }}
+        className="gradient-bg absolute inset-0 opacity-20 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600" 
+      />
       
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:32px_32px]" />
       
-      {/* Floating Elements */}
-      <div ref={floatingRef} className="absolute inset-0 pointer-events-none">
-        <div className="floating-element absolute top-20 left-[10%] w-20 h-20 bg-emerald-400/20 rounded-full blur-xl" />
-        <div className="floating-element absolute top-40 right-[15%] w-32 h-32 bg-teal-400/20 rounded-full blur-2xl" />
-        <div className="floating-element absolute bottom-32 left-[20%] w-24 h-24 bg-cyan-400/20 rounded-full blur-xl" />
-        <div className="floating-element absolute bottom-20 right-[25%] w-28 h-28 bg-emerald-400/20 rounded-full blur-2xl" />
+      {/* Floating Elements with Better Parallax */}
+      <div className="absolute inset-0 pointer-events-none">
+        <Parallax speed={0.2}>
+          <div className="absolute top-20 left-[10%] w-24 h-24 bg-emerald-400/30 rounded-full blur-2xl" />
+        </Parallax>
+        <Parallax speed={0.4}>
+          <div className="absolute top-40 right-[15%] w-40 h-40 bg-teal-400/30 rounded-full blur-3xl" />
+        </Parallax>
+        <Parallax speed={0.3} direction="down">
+          <div className="absolute bottom-32 left-[20%] w-32 h-32 bg-cyan-400/30 rounded-full blur-2xl" />
+        </Parallax>
+        <Parallax speed={0.5}>
+          <div className="absolute bottom-20 right-[25%] w-36 h-36 bg-emerald-400/30 rounded-full blur-3xl" />
+        </Parallax>
+        
+        {/* Floating Icons with improved visibility */}
+        <Parallax speed={0.6}>
+          <div className="absolute top-32 left-[8%]">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+              className="text-emerald-500/40 dark:text-emerald-400/40"
+            >
+              <Pill className="w-20 h-20" />
+            </motion.div>
+          </div>
+        </Parallax>
+        <Parallax speed={0.7}>
+          <div className="absolute top-[60%] right-[12%]">
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+              className="text-teal-500/40 dark:text-teal-400/40"
+            >
+              <Heart className="w-16 h-16" />
+            </motion.div>
+          </div>
+        </Parallax>
+        <Parallax speed={0.4}>
+          <div className="absolute bottom-[35%] left-[18%]">
+            <motion.div
+              animate={{ y: [0, -25, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-cyan-500/40 dark:text-cyan-400/40"
+            >
+              <Shield className="w-18 h-18" />
+            </motion.div>
+          </div>
+        </Parallax>
       </div>
 
       {/* Main Content */}
@@ -90,12 +146,10 @@ export const HeroSection = () => {
               </motion.div>
 
               <div className="space-y-4">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                  <div className="bg-gradient-to-r from-slate-900 via-emerald-800 to-teal-800 dark:from-white dark:via-emerald-200 dark:to-teal-200 bg-clip-text text-transparent">
-                    {splitText('Apotekku')}
-                  </div>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-slate-900 dark:text-white">
+                  {splitText('Apotekku')}
                 </h1>
-                <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 font-medium">
+                <p className="text-xl md:text-2xl text-emerald-600 dark:text-emerald-400 font-medium">
                   Kesehatan Anda, Prioritas Kami
                 </p>
               </div>
@@ -104,7 +158,7 @@ export const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="text-lg text-slate-600 dark:text-slate-400 max-w-xl"
+                className="text-lg text-slate-700 dark:text-slate-300 max-w-xl leading-relaxed"
               >
                 Apotek modern dengan sistem manajemen terintegrasi, menyediakan obat berkualitas 
                 dengan pelayanan profesional dan terpercaya untuk keluarga Indonesia.
@@ -133,15 +187,15 @@ export const HeroSection = () => {
               >
                 <div>
                   <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">5000+</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Produk</div>
+                  <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">Produk</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">24/7</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Layanan</div>
+                  <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">Layanan</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">100%</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Terpercaya</div>
+                  <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">Terpercaya</div>
                 </div>
               </motion.div>
             </div>
@@ -160,9 +214,9 @@ export const HeroSection = () => {
                   className="absolute top-0 right-0 w-80 h-96 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl p-8 text-white transform rotate-6"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
-                  <Pill className="w-16 h-16 mb-4" />
+                  <Pill className="w-16 h-16 mb-4 opacity-90" />
                   <h3 className="text-2xl font-bold mb-2">Obat Berkualitas</h3>
-                  <p className="text-emerald-100">Produk original dengan sertifikat resmi dari BPOM</p>
+                  <p className="text-emerald-50">Produk original dengan sertifikat resmi dari BPOM</p>
                 </motion.div>
 
                 {/* Card 2 */}
@@ -171,9 +225,9 @@ export const HeroSection = () => {
                   className="absolute top-32 left-0 w-80 h-96 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl shadow-2xl p-8 text-white transform -rotate-6"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
-                  <Shield className="w-16 h-16 mb-4" />
+                  <Shield className="w-16 h-16 mb-4 opacity-90" />
                   <h3 className="text-2xl font-bold mb-2">Aman & Terpercaya</h3>
-                  <p className="text-cyan-100">Sistem keamanan berlapis untuk melindungi data Anda</p>
+                  <p className="text-cyan-50">Sistem keamanan berlapis untuk melindungi data Anda</p>
                 </motion.div>
 
                 {/* Floating Pill Icon */}

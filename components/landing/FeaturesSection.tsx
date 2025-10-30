@@ -1,52 +1,74 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Pill, Clock, Shield, Zap, Heart, Users } from 'lucide-react';
+import { Pill, Clock, Shield, Zap, Heart, Users, Package, TrendingUp, Award, HeadphonesIcon, CheckCircle, Database } from 'lucide-react';
 import { SectionTitle } from '@/components/shared/SectionTitle';
 import { AnimatedSection } from '@/components/shared/AnimatedSection';
+import { Parallax } from '@/components/shared/Parallax';
 
 const features = [
   {
-    icon: Pill,
-    title: 'Obat Lengkap',
-    description: 'Lebih dari 5000+ jenis obat dan produk kesehatan tersedia dengan stok terjamin',
+    icon: Package,
+    title: 'Stok Real-Time',
+    description: 'Monitor stok obat secara real-time dengan notifikasi otomatis untuk produk yang hampir habis',
     color: 'from-emerald-500 to-teal-500',
     bgColor: 'bg-emerald-50 dark:bg-emerald-950',
   },
   {
     icon: Clock,
     title: 'Layanan 24/7',
-    description: 'Apotek buka setiap hari dengan sistem otomatis untuk kemudahan akses',
+    description: 'Apotek buka setiap hari dengan sistem otomatis dan dukungan customer service non-stop',
     color: 'from-blue-500 to-cyan-500',
     bgColor: 'bg-blue-50 dark:bg-blue-950',
   },
   {
     icon: Shield,
     title: 'Terjamin BPOM',
-    description: 'Semua produk terdaftar resmi dan memiliki sertifikat dari BPOM Indonesia',
+    description: 'Semua produk terdaftar resmi BPOM dengan sistem verifikasi barcode anti-pemalsuan',
     color: 'from-violet-500 to-purple-500',
     bgColor: 'bg-violet-50 dark:bg-violet-950',
   },
   {
     icon: Zap,
-    title: 'Proses Cepat',
-    description: 'Sistem kasir dan inventori terintegrasi untuk pelayanan super cepat',
+    title: 'Checkout Cepat',
+    description: 'Proses kasir super cepat dengan integrated payment gateway dan e-receipt otomatis',
     color: 'from-amber-500 to-orange-500',
     bgColor: 'bg-amber-50 dark:bg-amber-950',
   },
   {
-    icon: Heart,
-    title: 'Konsultasi Gratis',
-    description: 'Apoteker profesional siap membantu konsultasi obat tanpa biaya tambahan',
+    icon: HeadphonesIcon,
+    title: 'Konsultasi Expert',
+    description: 'Konsultasi gratis dengan apoteker bersertifikat dan dokter 24 jam via chat/call',
     color: 'from-pink-500 to-rose-500',
     bgColor: 'bg-pink-50 dark:bg-pink-950',
   },
   {
-    icon: Users,
-    title: 'Manajemen Modern',
-    description: 'Dashboard lengkap untuk mengelola stok, penjualan, dan laporan keuangan',
+    icon: Database,
+    title: 'Cloud Storage',
+    description: 'Data tersimpan aman di cloud dengan backup otomatis dan akses dari mana saja',
     color: 'from-indigo-500 to-blue-500',
     bgColor: 'bg-indigo-50 dark:bg-indigo-950',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Analytics Dashboard',
+    description: 'Laporan penjualan lengkap dengan grafik interaktif dan insights bisnis real-time',
+    color: 'from-cyan-500 to-teal-500',
+    bgColor: 'bg-cyan-50 dark:bg-cyan-950',
+  },
+  {
+    icon: Award,
+    title: 'Loyalty Program',
+    description: 'Sistem poin rewards otomatis untuk pelanggan setia dengan promo eksklusif',
+    color: 'from-yellow-500 to-amber-500',
+    bgColor: 'bg-yellow-50 dark:bg-yellow-950',
+  },
+  {
+    icon: CheckCircle,
+    title: 'E-Prescriptions',
+    description: 'Terima resep digital dari dokter dan proses otomatis tanpa antrian panjang',
+    color: 'from-green-500 to-emerald-500',
+    bgColor: 'bg-green-50 dark:bg-green-950',
   },
 ];
 
@@ -67,13 +89,25 @@ const item = {
 
 export const FeaturesSection = () => {
   return (
-    <section className="relative py-24 bg-white dark:bg-slate-900 overflow-hidden">
+    <section id="features" className="relative py-24 bg-white dark:bg-slate-900 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
           backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(51 65 85) 1px, transparent 0)',
           backgroundSize: '40px 40px',
         }} />
+      </div>
+
+      {/* Parallax Decorative Elements - Fixed in section */}
+      <div className="absolute top-10 right-10">
+        <Parallax speed={0.2}>
+          <div className="w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
+        </Parallax>
+      </div>
+      <div className="absolute bottom-20 left-10">
+        <Parallax speed={0.3} direction="down">
+          <div className="w-80 h-80 bg-teal-500/10 rounded-full blur-3xl" />
+        </Parallax>
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -103,19 +137,31 @@ export const FeaturesSection = () => {
                   className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                 />
 
-                {/* Icon */}
-                <div className={`relative w-16 h-16 ${feature.bgColor} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                {/* Icon with Hover Animation */}
+                <motion.div
+                  whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                  className={`relative w-16 h-16 ${feature.bgColor} rounded-xl flex items-center justify-center mb-6`}
+                >
                   <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-10 rounded-xl`} />
-                  <feature.icon className={`w-8 h-8 bg-gradient-to-br ${feature.color} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent' }} />
-                </div>
+                  <feature.icon className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                </motion.div>
 
                 {/* Content */}
-                <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">
+                <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   {feature.title}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                   {feature.description}
                 </p>
+
+                {/* Hover Indicator */}
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} origin-left`}
+                />
 
                 {/* Decorative Element */}
                 <motion.div
