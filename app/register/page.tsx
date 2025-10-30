@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Building } from 'lucide-react';
+import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Building, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -115,6 +115,22 @@ export default function RegisterPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
+        {/* Back to Home Link */}
+        <motion.div
+          className="mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            Kembali ke Beranda
+          </Link>
+        </motion.div>
+
         {/* Logo & Title */}
         <motion.div 
           className="text-center mb-8"
@@ -204,7 +220,7 @@ export default function RegisterPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="John Doe"
                   disabled={isLoading}
                 />
@@ -224,7 +240,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="john@example.com"
                   disabled={isLoading}
                 />
@@ -244,7 +260,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -264,7 +280,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />

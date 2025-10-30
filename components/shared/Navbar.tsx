@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Pill, Phone, Mail } from 'lucide-react';
+import { Menu, X, ChevronDown, Pill, Phone, Mail, LogIn } from 'lucide-react';
 import { Button } from '@/components/shared/Button';
+import Link from 'next/link';
 
 const navLinks = [
   { label: 'Beranda', href: '#home' },
@@ -91,6 +92,12 @@ export const Navbar = () => {
                 <Phone className="w-4 h-4" />
                 <span className="text-sm font-medium">+62 812-3456-789</span>
               </motion.a>
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Login Staff
+                </Button>
+              </Link>
               <Button variant="primary" size="sm">
                 Hubungi Kami
               </Button>
@@ -190,9 +197,17 @@ export const Navbar = () => {
                 </div>
 
                 {/* CTA Button */}
-                <Button variant="primary" size="md" className="w-full">
-                  Hubungi Kami
-                </Button>
+                <div className="space-y-3">
+                  <Link href="/login" className="block">
+                    <Button variant="outline" size="md" className="w-full flex items-center justify-center gap-2">
+                      <LogIn className="w-4 h-4" />
+                      Login Staff
+                    </Button>
+                  </Link>
+                  <Button variant="primary" size="md" className="w-full">
+                    Hubungi Kami
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </>

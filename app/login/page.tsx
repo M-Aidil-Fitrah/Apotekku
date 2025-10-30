@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/auth';
-import { Pill, Loader2, Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
+import { Pill, Loader2, Mail, Lock, ArrowRight, Sparkles, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import Link from 'next/link';
@@ -85,6 +85,22 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
+        {/* Back to Home Link */}
+        <motion.div
+          className="mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            <Home className="w-4 h-4" />
+            Kembali ke Beranda
+          </Link>
+        </motion.div>
+
         {/* Logo & Title */}
         <motion.div 
           className="text-center mb-8"
@@ -173,7 +189,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="admin@apotekku.com"
                   disabled={isLoading}
                 />
@@ -192,7 +208,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
