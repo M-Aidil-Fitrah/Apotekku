@@ -25,7 +25,7 @@ export const CTASection = () => {
   return (
     <section id="contact" className="relative py-32 overflow-hidden">
       {/* Animated Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 dark:from-slate-950 dark:via-emerald-950 dark:to-teal-950">
+      <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-emerald-900 to-teal-900 dark:from-slate-950 dark:via-emerald-950 dark:to-teal-950">
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
@@ -136,7 +136,7 @@ export const CTASection = () => {
               
               {/* Hover Effect */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400"
+                className="absolute inset-0 bg-linear-to-r from-emerald-400 to-teal-400"
                 initial={{ scale: 0, opacity: 0 }}
                 whileHover={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3 }}

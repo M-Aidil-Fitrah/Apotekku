@@ -90,7 +90,7 @@ export const StatsSection = () => {
             >
               <div className="relative p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-slate-200 dark:border-slate-800">
                 {/* Gradient Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-teal-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 {/* Icon */}
                 <div className="relative mb-6">
@@ -115,7 +115,7 @@ export const StatsSection = () => {
                   whileInView={{ width: '100%' }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 + 0.5, duration: 0.8 }}
-                  className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${stat.color === 'text-emerald-500' ? 'from-emerald-500 to-teal-500' : stat.color === 'text-blue-500' ? 'from-blue-500 to-cyan-500' : 'from-purple-500 to-pink-500'}`}
+                  className={`absolute bottom-0 left-0 h-1 bg-linear-to-r ${stat.color === 'text-emerald-500' ? 'from-emerald-500 to-teal-500' : stat.color === 'text-blue-500' ? 'from-blue-500 to-cyan-500' : 'from-purple-500 to-pink-500'}`}
                 />
               </div>
             </motion.div>
@@ -130,7 +130,7 @@ export const StatsSection = () => {
           transition={{ delay: 0.8 }}
           className="mt-20 max-w-4xl mx-auto"
         >
-          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl p-12 text-white text-center shadow-2xl relative overflow-hidden">
+          <div className="bg-linear-to-r from-emerald-500 to-teal-500 rounded-3xl p-12 text-white text-center shadow-2xl relative overflow-hidden">
             {/* Animated Background Pattern */}
             <motion.div
               animate={{

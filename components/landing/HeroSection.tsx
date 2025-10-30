@@ -66,15 +66,15 @@ export const HeroSection = () => {
   };
 
   return (
-    <section ref={sectionRef} id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950 pt-20">
+    <section ref={sectionRef} id="home" className="relative h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950">
       {/* Animated Background Gradient with Parallax */}
       <motion.div 
         style={{ y, opacity }}
-        className="gradient-bg absolute inset-0 opacity-20 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600" 
+        className="gradient-bg absolute inset-0 opacity-20 bg-size-[200%_100%] bg-linear-to-r from-emerald-400 via-teal-400 to-cyan-400 dark:from-emerald-600 dark:via-teal-600 dark:to-cyan-600" 
       />
       
       {/* Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:32px_32px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-size-[32px_32px]" />
       
       {/* Floating Elements with Better Parallax */}
       <div className="absolute inset-0 pointer-events-none">
@@ -211,7 +211,7 @@ export const HeroSection = () => {
                 {/* Card 1 */}
                 <motion.div
                   whileHover={{ scale: 1.05, rotateY: 5 }}
-                  className="absolute top-0 right-0 w-80 h-96 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl p-8 text-white transform rotate-6"
+                  className="absolute top-0 right-0 w-80 h-96 bg-linear-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-2xl p-8 text-white transform rotate-6"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   <Pill className="w-16 h-16 mb-4 opacity-90" />
@@ -222,7 +222,7 @@ export const HeroSection = () => {
                 {/* Card 2 */}
                 <motion.div
                   whileHover={{ scale: 1.05, rotateY: -5 }}
-                  className="absolute top-32 left-0 w-80 h-96 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl shadow-2xl p-8 text-white transform -rotate-6"
+                  className="absolute top-32 left-0 w-80 h-96 bg-linear-to-br from-cyan-500 to-blue-600 rounded-3xl shadow-2xl p-8 text-white transform -rotate-6"
                   style={{ transformStyle: 'preserve-3d' }}
                 >
                   <Shield className="w-16 h-16 mb-4 opacity-90" />

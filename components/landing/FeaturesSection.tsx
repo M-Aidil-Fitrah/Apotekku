@@ -134,7 +134,7 @@ export const FeaturesSection = () => {
               <div className="relative h-full p-8 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden">
                 {/* Gradient Background on Hover */}
                 <motion.div
-                  className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
+                  className={`absolute inset-0 bg-linear-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                 />
 
                 {/* Icon with Hover Animation */}
@@ -143,7 +143,7 @@ export const FeaturesSection = () => {
                   transition={{ duration: 0.5 }}
                   className={`relative w-16 h-16 ${feature.bgColor} rounded-xl flex items-center justify-center mb-6`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-10 rounded-xl`} />
+                  <div className={`absolute inset-0 bg-linear-to-br ${feature.color} opacity-10 rounded-xl`} />
                   <feature.icon className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
                 </motion.div>
 
@@ -160,14 +160,14 @@ export const FeaturesSection = () => {
                   initial={{ scaleX: 0 }}
                   whileHover={{ scaleX: 1 }}
                   transition={{ duration: 0.3 }}
-                  className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} origin-left`}
+                  className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${feature.color} origin-left`}
                 />
 
                 {/* Decorative Element */}
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
                   whileHover={{ scale: 1, opacity: 0.1 }}
-                  className={`absolute -bottom-12 -right-12 w-32 h-32 bg-gradient-to-br ${feature.color} rounded-full blur-2xl`}
+                  className={`absolute -bottom-12 -right-12 w-32 h-32 bg-linear-to-br ${feature.color} rounded-full blur-2xl`}
                 />
               </div>
             </motion.div>
@@ -176,7 +176,7 @@ export const FeaturesSection = () => {
 
         {/* Bottom CTA */}
         <AnimatedSection delay={0.4} className="mt-16 text-center">
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-500 text-white rounded-full font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer">
             <span>Lihat Semua Fitur</span>
             <motion.span
               animate={{ x: [0, 5, 0] }}

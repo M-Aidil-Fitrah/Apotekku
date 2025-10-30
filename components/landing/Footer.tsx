@@ -105,7 +105,7 @@ export const Footer = () => {
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 transition-all duration-300"
+                  className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-linear-to-r hover:from-emerald-500 hover:to-teal-500 transition-all duration-300"
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />
