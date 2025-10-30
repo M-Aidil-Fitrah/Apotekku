@@ -2,18 +2,20 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/auth';
-import { Pill, Loader2, Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
+import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Building } from 'lucide-react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const login = useAuthStore((state) => state.login);
   
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,7 +27,7 @@ export default function LoginPage() {
     if (logoRef.current) {
       gsap.fromTo(
         logoRef.current,
-        { scale: 0, rotation: -180, opacity: 0 },
+        { scale: 0, rotation: 180, opacity: 0 },
         { scale: 1, rotation: 0, opacity: 1, duration: 1, ease: 'elastic.out(1, 0.5)' }
       );
     }
@@ -42,42 +44,70 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Password tidak cocok');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Password minimal 8 karakter');
+      return;
+    }
+
     setIsLoading(true);
 
-    try {
-      await login(email, password);
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login gagal. Periksa email dan password Anda.');
-    } finally {
+    // Simulate API call (karena belum ada endpoint register di backend)
+    setTimeout(() => {
+      setError('Fitur registrasi belum tersedia. Silakan gunakan akun demo untuk login.');
       setIsLoading(false);
-    }
+    }, 1000);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          className="absolute -top-40 -right-40 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
           animate={{
             scale: [1, 1.2, 1],
             rotate: [0, 90, 0],
           }}
           transition={{
-            duration: 8,
+            duration: 10,
             repeat: Infinity,
             ease: "easeInOut"
           }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
           animate={{
             scale: [1, 1.3, 1],
             rotate: [0, -90, 0],
           }}
           transition={{
-            duration: 10,
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60"
+          animate={{
+            scale: [1, 1.1, 1],
+            x: [-50, 50, -50],
+            y: [-50, 50, -50],
+          }}
+          transition={{
+            duration: 15,
             repeat: Infinity,
             ease: "easeInOut"
           }}
@@ -96,20 +126,20 @@ export default function LoginPage() {
             <div className="relative">
               <div 
                 className="absolute inset-0 rounded-2xl blur-lg opacity-50"
-                style={{ background: 'linear-gradient(to right, #2563eb, #4f46e5)' }}
+                style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
               ></div>
               <div 
                 className="relative p-4 rounded-2xl"
-                style={{ background: 'linear-gradient(to right, #2563eb, #4f46e5)' }}
+                style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
               >
                 <Pill className="w-10 h-10 text-white" />
               </div>
             </div>
           </div>
           <motion.h1 
-            className="text-4xl font-bold bg-gradient-text"
+            className="text-4xl font-bold"
             style={{ 
-              background: 'linear-gradient(to right, #2563eb, #4f46e5)',
+              background: 'linear-gradient(to right, #9333ea, #ec4899)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
@@ -118,7 +148,7 @@ export default function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Apotekku
+            Bergabung dengan Apotekku
           </motion.h1>
           <motion.p 
             className="text-gray-600 mt-2 flex items-center justify-center gap-2"
@@ -127,12 +157,12 @@ export default function LoginPage() {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             <Sparkles className="w-4 h-4 text-yellow-500" />
-            Pharmacy Management System
+            Daftar untuk memulai
             <Sparkles className="w-4 h-4 text-yellow-500" />
           </motion.p>
         </motion.div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <motion.div 
           ref={formRef}
           className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20"
@@ -141,12 +171,12 @@ export default function LoginPage() {
           transition={{ delay: 0.2, duration: 0.6 }}
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            Selamat Datang Kembali
+            Buat Akun Baru
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
             >
-              👋
+              ✨
             </motion.div>
           </h2>
 
@@ -160,7 +190,27 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                Nama Lengkap
+              </label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  placeholder="John Doe"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
@@ -169,12 +219,13 @@ export default function LoginPage() {
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   id="email"
+                  name="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
-                  placeholder="admin@apotekku.com"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  placeholder="john@example.com"
                   disabled={isLoading}
                 />
               </div>
@@ -188,11 +239,32 @@ export default function LoginPage() {
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   id="password"
+                  name="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
+                  placeholder="••••••••"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+                Konfirmasi Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300"
                   placeholder="••••••••"
                   disabled={isLoading}
                 />
@@ -202,8 +274,8 @@ export default function LoginPage() {
             <motion.button
               type="submit"
               disabled={isLoading}
-              className="w-full text-white py-3.5 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-              style={{ background: 'linear-gradient(to right, #2563eb, #4f46e5)' }}
+              className="w-full text-white py-3.5 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-6"
+              style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -214,43 +286,41 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  Masuk
+                  Daftar Sekarang
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </motion.button>
           </form>
 
-          {/* Register Link */}
+          {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Belum punya akun?{' '}
+              Sudah punya akun?{' '}
               <Link 
-                href="/register" 
-                className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                href="/login" 
+                className="font-semibold text-purple-600 hover:text-purple-700 transition-colors"
               >
-                Daftar sekarang
+                Masuk di sini
               </Link>
             </p>
           </div>
 
-          {/* Demo Credentials */}
+          {/* Note */}
           <motion.div 
-            className="mt-6 p-4 rounded-xl border border-blue-100"
-            style={{ background: 'linear-gradient(to right, #eff6ff, #e0e7ff)' }}
+            className="mt-6 p-4 rounded-xl border border-yellow-100"
+            style={{ background: 'linear-gradient(to right, #fef3c7, #fed7aa)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
             <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-blue-500" />
-              Demo Credentials
+              <Building className="w-3 h-3 text-yellow-600" />
+              Catatan
             </p>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p>👨‍💼 Admin: admin@apotekku.com / password123</p>
-              <p>💊 Apoteker: apoteker@apotekku.com / password123</p>
-              <p>💰 Kasir: kasir@apotekku.com / password123</p>
-            </div>
+            <p className="text-xs text-gray-600">
+              Untuk demo, silakan gunakan akun yang sudah tersedia di halaman login.
+            </p>
           </motion.div>
         </motion.div>
 
@@ -260,7 +330,7 @@ export default function LoginPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
         >
-          © 2025 Apotekku.
+          © 2025 Apotekku. Crafted with ❤️
         </motion.p>
       </div>
     </div>

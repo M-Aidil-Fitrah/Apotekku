@@ -27,6 +27,25 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }
 
+/* Custom Gradient Classes */
+.gradient-blue {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+}
+
+.gradient-purple-pink {
+  background: linear-gradient(to right, #9333ea, #ec4899);
+}
+
+.gradient-yellow {
+  background: linear-gradient(to right, #fef3c7, #fed7aa);
+}
+
+.bg-gradient-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Smooth Scroll */
 html {
   scroll-behavior: smooth;
