@@ -52,8 +52,7 @@ const UserSchema = new Schema<IUser>(
   }
 );
 
-// Index for faster queries
-UserSchema.index({ email: 1 });
+// Index for faster queries (email sudah unique di schema, tidak perlu index lagi)
 UserSchema.index({ isActive: 1 });
 
 // Remove sensitive data when converting to JSON

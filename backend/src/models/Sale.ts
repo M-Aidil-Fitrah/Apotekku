@@ -83,8 +83,7 @@ const SaleSchema = new Schema<ISale>(
   }
 );
 
-// Indexes
-SaleSchema.index({ invoiceNo: 1 });
+// Indexes (invoiceNo sudah unique di schema, tidak perlu index lagi)
 SaleSchema.index({ date: -1 });
 SaleSchema.index({ cashierId: 1 });
 SaleSchema.index({ status: 1 });

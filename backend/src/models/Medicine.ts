@@ -73,9 +73,8 @@ const MedicineSchema = new Schema<IMedicine>(
   }
 );
 
-// Indexes
+// Indexes (sku sudah unique di schema, tidak perlu index lagi)
 MedicineSchema.index({ name: 1 });
-MedicineSchema.index({ sku: 1 });
 MedicineSchema.index({ category: 1 });
 MedicineSchema.index({ isPrescriptionOnly: 1 });
 MedicineSchema.index({ name: 'text', description: 'text' }); // Text search

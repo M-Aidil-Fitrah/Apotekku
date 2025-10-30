@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes';
 import medicineRoutes from './routes/medicineRoutes';
 import purchaseRoutes from './routes/purchaseRoutes';
 import saleRoutes from './routes/saleRoutes';
+import reportRoutes from './routes/reportRoutes';
 
 // Load env variables
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/purchases', purchaseRoutes);
 app.use('/api/sales', saleRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Error handling
 app.use(notFound);
