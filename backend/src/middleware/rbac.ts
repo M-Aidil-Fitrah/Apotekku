@@ -26,8 +26,11 @@ export const authorize = (...roles: UserRole[]) => {
   };
 };
 
+// Export requireRole as alias for authorize
+export const requireRole = authorize;
+
 // Shorthand helpers
 export const adminOnly = authorize('admin');
 export const apotekerOnly = authorize('apoteker');
 export const adminOrApoteker = authorize('admin', 'apoteker');
-export const allStaff = authorize('admin', 'apoteker', 'kasir');
+

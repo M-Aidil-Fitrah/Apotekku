@@ -1,13 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type UserRole = 'admin' | 'apoteker' | 'kasir';
+export type UserRole = 'admin' | 'apoteker';
 
 export interface IUser extends Document {
   name: string;
   email: string;
   passwordHash: string;
   roles: UserRole[];
-  branchId?: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -35,12 +34,8 @@ const UserSchema = new Schema<IUser>(
     },
     roles: {
       type: [String],
-      enum: ['admin', 'apoteker', 'kasir'],
-      default: ['kasir'],
-    },
-    branchId: {
-      type: String,
-      required: false,
+      enum: ['admin', 'apoteker'],
+      default: ['apoteker'],
     },
     isActive: {
       type: Boolean,

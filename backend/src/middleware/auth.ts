@@ -2,10 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { User, IUser } from '../models/User';
+import { Customer, ICustomer } from '../models/Customer';
 
 export interface AuthRequest extends Request {
-  user?: IUser;
+  user?: IUser | ICustomer;
   userId?: string;
+  userType?: 'admin' | 'customer';
 }
 
 export const authenticate = async (
@@ -31,21 +33,42 @@ export const authenticate = async (
       throw new Error('JWT_SECRET tidak terkonfigurasi');
     }
 
-    const decoded = jwt.verify(token, secret) as { userId: string };
+    const decoded = jwt.verify(token, secret) as { id: string; type?: string; userId?: string };
     
-    const user = await User.findById(decoded.userId);
+    // Support both old (userId) and new (id + type) format
+    const userId = decoded.id || decoded.userId;
+    const userType = decoded.type || 'admin';
 
-    if (!user || !user.isActive) {
-      res.status(401).json({ 
-        success: false,
-        message: 'User tidak ditemukan atau tidak aktif.' 
-      });
-      return;
+    if (userType === 'customer') {
+      const customer = await Customer.findById(userId);
+
+      if (!customer || !customer.isActive) {
+        res.status(401).json({ 
+          success: false,
+          message: 'Customer tidak ditemukan atau tidak aktif.' 
+        });
+        return;
+      }
+
+      req.user = customer;
+      req.userId = (customer._id as mongoose.Types.ObjectId).toString();
+      req.userType = 'customer';
+    } else {
+      const user = await User.findById(userId);
+
+      if (!user || !user.isActive) {
+        res.status(401).json({ 
+          success: false,
+          message: 'User tidak ditemukan atau tidak aktif.' 
+        });
+        return;
+      }
+
+      req.user = user;
+      req.userId = (user._id as mongoose.Types.ObjectId).toString();
+      req.userType = 'admin';
     }
-
-    const userId = user._id as mongoose.Types.ObjectId;
-    req.user = user;
-    req.userId = userId.toString();
+    
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
