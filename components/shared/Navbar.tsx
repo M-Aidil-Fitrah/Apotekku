@@ -78,11 +78,11 @@ export const Navbar = () => {
                 <motion.a
                   key={index}
                   href={link.href}
-                  className="relative text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors group"
+                  className="relative text-white hover:text-emerald-200 font-medium transition-colors group"
                   whileHover={{ y: -2 }}
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-emerald-500 to-teal-500 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300" />
                 </motion.a>
               ))}
             </div>
@@ -91,7 +91,7 @@ export const Navbar = () => {
             <div className="hidden md:flex items-center gap-4">
               <motion.a
                 href="tel:+628123456789"
-                className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                className="flex items-center gap-2 text-white hover:text-emerald-200 transition-colors"
                 whileHover={{ scale: 1.05 }}
               >
                 <Phone className="w-4 h-4" />
@@ -101,13 +101,13 @@ export const Navbar = () => {
               {/* Cart Button */}
               <motion.button
                 onClick={toggleCart}
-                className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="relative p-2 rounded-lg hover:bg-white/20 transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                <ShoppingCart className="w-5 h-5 text-white" />
                 {mounted && getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {getTotalItems()}
                   </span>
                 )}
@@ -116,7 +116,7 @@ export const Navbar = () => {
               {/* Orders Link */}
               <Link href="/marketplace/orders">
                 <motion.button
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/20 transition-colors text-white"
                   whileHover={{ scale: 1.05 }}
                 >
                   <Package className="w-4 h-4" />
@@ -125,7 +125,7 @@ export const Navbar = () => {
               </Link>
 
               <Link href="/login">
-                <Button variant="outline" size="sm" className="flex items-center gap-2 border-slate-300 text-slate-700 dark:border-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 border-white text-white hover:bg-white hover:text-emerald-600">
                   <LogIn className="w-4 h-4" />
                   Login
                 </Button>
@@ -139,9 +139,9 @@ export const Navbar = () => {
               className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+                <X className="w-6 h-6 text-white" />
               ) : (
-                <Menu className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+                <Menu className="w-6 h-6 text-white" />
               )}
             </motion.button>
           </div>

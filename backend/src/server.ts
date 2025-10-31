@@ -11,6 +11,7 @@ import { midtransNotification } from './controllers/paymentController';
 
 // Auth Routes
 import authRoutes from './routes/authRoutes'; // Admin/Staff auth
+import userRoutes from './routes/userRoutes'; // User management (Admin only)
 
 // Marketplace Routes
 import customerRoutes from './routes/customerRoutes'; // Customer auth & profile
@@ -54,6 +55,7 @@ app.get('/health', (req: express.Request, res: express.Response) => {
 // API Routes
 // Auth for Admin/Staff
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Marketplace (Public/Customer)
 app.use('/api/customers', customerRoutes);
