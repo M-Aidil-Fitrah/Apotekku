@@ -57,7 +57,7 @@ export const Button = ({
         )}
       </span>
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600"
+        className="absolute inset-0 bg-linear-to-r from-emerald-600 to-teal-600"
         initial={{ x: '-100%' }}
         whileHover={{ x: 0 }}
         transition={{ duration: 0.3 }}

@@ -20,6 +20,8 @@ import { Button } from '@/components/shared/Button';
 import { Navbar } from '@/components/shared/Navbar';
 import { ScrollProgress } from '@/components/shared/ScrollProgress';
 import { Footer } from '@/components/landing/Footer';
+import { CartDrawer } from '@/components/marketplace/CartDrawer';
+import { useCart } from '@/lib/store/marketplaceCart';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -113,6 +115,7 @@ const reviews = [
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
@@ -160,13 +163,26 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleAddToCart = () => {
+    addItem({
+      productId: mockProduct.id,
+      name: mockProduct.name,
+      slug: mockProduct.slug,
+      price: mockProduct.price,
+      image: mockProduct.images[0],
+      stock: mockProduct.stock,
+      quantity: quantity,
+    });
+  };
+
   return (
     <div className="relative bg-slate-50 dark:bg-slate-900 min-h-screen">
       <ScrollProgress />
       <Navbar />
+      <CartDrawer />
 
       {/* Breadcrumb */}
-      <section className="pt-24 pb-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+      <section className="relative z-10 pt-24 pb-6 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 text-sm">
             <Link href="/" className="text-slate-600 dark:text-slate-400 hover:text-emerald-600">
@@ -187,7 +203,7 @@ export default function ProductDetailPage() {
       </section>
 
       {/* Product Details */}
-      <section className="py-12">
+      <section className="relative z-10 py-12">
         <div className="container mx-auto px-4" ref={productRef}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
             {/* Images */}
@@ -341,6 +357,7 @@ export default function ProductDetailPage() {
                   <Button
                     variant="primary"
                     size="lg"
+                    onClick={handleAddToCart}
                     style={{
                       backgroundImage: 'linear-gradient(to right, #10b981, #14b8a6)',
                     }}

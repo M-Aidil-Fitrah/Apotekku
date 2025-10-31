@@ -18,6 +18,7 @@ import { Button } from '@/components/shared/Button';
 import { Navbar } from '@/components/shared/Navbar';
 import { ScrollProgress } from '@/components/shared/ScrollProgress';
 import { Footer } from '@/components/landing/Footer';
+import { CartDrawer } from '@/components/marketplace/CartDrawer';
 import Link from 'next/link';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -199,6 +200,7 @@ export default function ProductsPage() {
     <div className="relative bg-slate-50 dark:bg-slate-900 min-h-screen">
       <ScrollProgress />
       <Navbar />
+      <CartDrawer />
 
       {/* Hero Header */}
       <section className="relative pt-32 pb-12 overflow-hidden bg-linear-to-br from-slate-50 via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-emerald-950 dark:to-teal-950">

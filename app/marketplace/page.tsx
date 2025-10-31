@@ -6,6 +6,7 @@ import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
 import { CategoryGrid } from '@/components/marketplace/CategoryGrid';
 import { FeaturedProducts } from '@/components/marketplace/FeaturedProducts';
 import { WhyShopWithUs } from '@/components/marketplace/WhyShopWithUs';
+import { CartDrawer } from '@/components/marketplace/CartDrawer';
 import { Footer } from '@/components/landing/Footer';
 
 export default function MarketplacePage() {
@@ -13,6 +14,7 @@ export default function MarketplacePage() {
     <div className="relative bg-slate-50 dark:bg-slate-900">
       <ScrollProgress />
       <Navbar />
+      <CartDrawer />
       <MarketplaceHero />
       <CategoryGrid />
       <FeaturedProducts />

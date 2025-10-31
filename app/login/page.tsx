@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/auth';
+import { Navbar } from '@/components/shared/Navbar';
 import { Pill, Loader2, Mail, Lock, ArrowRight, Sparkles, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
@@ -45,8 +46,26 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      router.push('/dashboard');
+      const response = await login(email, password);
+      
+      // Get user from auth store after login
+      const user = useAuthStore.getState().user;
+      
+      // Check role and redirect
+      if (user) {
+        // If user type is 'customer' with role 'buyer', redirect to landing page
+        if ('role' in user && user.role === 'buyer') {
+          router.push('/');
+        } 
+        // If user type is 'user' with roles array (admin/apoteker), redirect to dashboard
+        else if ('roles' in user && Array.isArray(user.roles)) {
+          router.push('/dashboard');
+        }
+        // Default fallback to landing page
+        else {
+          router.push('/');
+        }
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login gagal. Periksa email dan password Anda.');
     } finally {
@@ -55,9 +74,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+    <>
+      <Navbar />
+      <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4 pt-24">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
           animate={{
@@ -280,5 +301,6 @@ export default function LoginPage() {
         </motion.p>
       </div>
     </div>
+    </>
   );
 }
