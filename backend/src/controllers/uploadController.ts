@@ -8,9 +8,27 @@ export const uploadFile = async (req: Request, res: Response) => {
     const file = req.file;
     if (!file) return res.status(400).json({ success: false, message: 'No file provided' });
 
-    const result = await uploadBuffer(file.buffer, { folder: 'apotekku/uploads' });
+    // Get folder from query param or use default
+    const folder = (req.query.folder as string) || 'apotekku/general';
 
-    return res.json({ success: true, data: { url: result.secure_url, public_id: result.public_id, raw: result } });
+    const result = await uploadBuffer(file.buffer, { 
+      folder,
+      transformation: [
+        { width: 1200, height: 1200, crop: 'limit' },
+        { quality: 'auto' }
+      ]
+    });
+
+    return res.json({ 
+      success: true, 
+      data: { 
+        url: result.secure_url, 
+        public_id: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+      } 
+    });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Upload failed', error: error.message });
   }

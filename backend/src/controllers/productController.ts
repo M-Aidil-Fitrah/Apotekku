@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Product } from '../models/Product';
 import { Category } from '../models/Category';
 import { Review } from '../models/Review';
+import { uploadBuffer } from '../utils/cloudinary';
+import { AuthRequest } from '../middleware/auth';
 
 // Get all products with filters, sorting, and pagination
 export const getProducts = async (req: Request, res: Response) => {
@@ -195,9 +197,43 @@ export const getNewArrivals = async (req: Request, res: Response) => {
 };
 
 // Admin: Create product
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (req: AuthRequest, res: Response) => {
   try {
-    const product = await Product.create(req.body);
+    const productData = req.body;
+    
+    // Handle image upload if file is provided
+    // @ts-ignore
+    if (req.file) {
+      // @ts-ignore
+      const imageResult = await uploadBuffer(req.file.buffer, { 
+        folder: 'apotekku/products',
+        transformation: [
+          { width: 800, height: 800, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+      productData.mainImage = imageResult.secure_url;
+    }
+    
+    // Handle multiple images if files are provided
+    // @ts-ignore
+    if (req.files && Array.isArray(req.files)) {
+      const imageUrls = [];
+      // @ts-ignore
+      for (const file of req.files) {
+        const imageResult = await uploadBuffer(file.buffer, { 
+          folder: 'apotekku/products',
+          transformation: [
+            { width: 800, height: 800, crop: 'limit' },
+            { quality: 'auto' }
+          ]
+        });
+        imageUrls.push(imageResult.secure_url);
+      }
+      productData.images = imageUrls;
+    }
+
+    const product = await Product.create(productData);
 
     res.status(201).json({
       success: true,
@@ -214,13 +250,46 @@ export const createProduct = async (req: Request, res: Response) => {
 };
 
 // Admin: Update product
-export const updateProduct = async (req: Request, res: Response) => {
+export const updateProduct = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
+    const updateData = req.body;
+
+    // Handle image upload if file is provided
+    // @ts-ignore
+    if (req.file) {
+      // @ts-ignore
+      const imageResult = await uploadBuffer(req.file.buffer, { 
+        folder: 'apotekku/products',
+        transformation: [
+          { width: 800, height: 800, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+      updateData.mainImage = imageResult.secure_url;
+    }
+    
+    // Handle multiple images if files are provided
+    // @ts-ignore
+    if (req.files && Array.isArray(req.files)) {
+      const imageUrls = [];
+      // @ts-ignore
+      for (const file of req.files) {
+        const imageResult = await uploadBuffer(file.buffer, { 
+          folder: 'apotekku/products',
+          transformation: [
+            { width: 800, height: 800, crop: 'limit' },
+            { quality: 'auto' }
+          ]
+        });
+        imageUrls.push(imageResult.secure_url);
+      }
+      updateData.images = imageUrls;
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 

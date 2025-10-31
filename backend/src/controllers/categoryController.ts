@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { Category } from '../models/Category';
+import { uploadBuffer } from '../utils/cloudinary';
+import { AuthRequest } from '../middleware/auth';
 
 // Get all categories
 export const getCategories = async (req: Request, res: Response) => {
@@ -59,9 +61,25 @@ export const getCategoryBySlug = async (req: Request, res: Response) => {
 };
 
 // Admin: Create category
-export const createCategory = async (req: Request, res: Response) => {
+export const createCategory = async (req: AuthRequest, res: Response) => {
   try {
-    const category = await Category.create(req.body);
+    const categoryData = req.body;
+    
+    // Handle image upload if file is provided
+    // @ts-ignore
+    if (req.file) {
+      // @ts-ignore
+      const imageResult = await uploadBuffer(req.file.buffer, { 
+        folder: 'apotekku/categories',
+        transformation: [
+          { width: 400, height: 400, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+      categoryData.image = imageResult.secure_url;
+    }
+
+    const category = await Category.create(categoryData);
 
     res.status(201).json({
       success: true,
@@ -78,13 +96,28 @@ export const createCategory = async (req: Request, res: Response) => {
 };
 
 // Admin: Update category
-export const updateCategory = async (req: Request, res: Response) => {
+export const updateCategory = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
+    const updateData = req.body;
+
+    // Handle image upload if file is provided
+    // @ts-ignore
+    if (req.file) {
+      // @ts-ignore
+      const imageResult = await uploadBuffer(req.file.buffer, { 
+        folder: 'apotekku/categories',
+        transformation: [
+          { width: 400, height: 400, crop: 'limit' },
+          { quality: 'auto' }
+        ]
+      });
+      updateData.image = imageResult.secure_url;
+    }
 
     const category = await Category.findByIdAndUpdate(
       id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 

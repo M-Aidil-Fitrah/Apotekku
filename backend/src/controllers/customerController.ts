@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Customer } from '../models/Customer';
+import { uploadBuffer } from '../utils/cloudinary';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
@@ -147,11 +148,25 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
-    const { name, phone, allergies, chronicDiseases } = req.body;
+    const updateData: any = { name: req.body.name, phone: req.body.phone, allergies: req.body.allergies, chronicDiseases: req.body.chronicDiseases };
+
+    // Handle profile image upload if file is provided
+    // @ts-ignore
+    if (req.file) {
+      // @ts-ignore
+      const imageResult = await uploadBuffer(req.file.buffer, { 
+        folder: 'apotekku/customers',
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+          { quality: 'auto' }
+        ]
+      });
+      updateData.profileImage = imageResult.secure_url;
+    }
 
     const customer = await Customer.findByIdAndUpdate(
       customerId,
-      { $set: { name, phone, allergies, chronicDiseases } },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 

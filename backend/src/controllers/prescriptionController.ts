@@ -3,10 +3,27 @@ import { Prescription, PrescriptionStatus } from '../models/Prescription';
 import { Product } from '../models/Product';
 import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
+import { uploadBuffer } from '../utils/cloudinary';
 
 // Customer: Upload resep baru
 export const uploadPrescription = async (req: AuthRequest, res: Response) => {
-  const { patientName, patientDOB, patientPhone, doctorName, doctorLicense, imageUrl, lines } = req.body;
+  const { patientName, patientDOB, patientPhone, doctorName, doctorLicense, lines } = req.body;
+  
+  let imageUrl = req.body.imageUrl;
+
+  // Handle image upload if file is provided
+  // @ts-ignore
+  if (req.file) {
+    // @ts-ignore
+    const imageResult = await uploadBuffer(req.file.buffer, { 
+      folder: 'apotekku/prescriptions',
+      transformation: [
+        { width: 1200, height: 1600, crop: 'limit' },
+        { quality: 'auto' }
+      ]
+    });
+    imageUrl = imageResult.secure_url;
+  }
 
   // Validasi semua productId exist
   const productIds = lines.map((line: any) => line.productId);

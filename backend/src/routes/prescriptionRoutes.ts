@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
+import { uploadSingle, handleUploadError } from '../middleware/upload';
 import {
   uploadPrescription,
   getMyPrescriptions,
@@ -14,11 +15,11 @@ import {
 
 const router = Router();
 
-// Customer routes - upload dan manage resep
-router.post('/', authenticate, uploadPrescription);
+// Customer routes - upload dan manage resep with image upload
+router.post('/', authenticate, handleUploadError(uploadSingle), uploadPrescription);
 router.get('/my', authenticate, getMyPrescriptions);
 router.get('/:id', authenticate, getPrescriptionById);
-router.put('/:id', authenticate, updatePrescription);
+router.put('/:id', authenticate, handleUploadError(uploadSingle), updatePrescription);
 router.delete('/:id', authenticate, deletePrescription);
 
 // Apoteker routes - review dan manage semua resep

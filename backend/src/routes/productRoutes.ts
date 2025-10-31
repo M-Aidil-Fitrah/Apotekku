@@ -12,6 +12,7 @@ import {
 } from '../controllers/productController';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
+import { uploadMultiple, handleUploadError } from '../middleware/upload';
 
 const router = Router();
 
@@ -22,9 +23,9 @@ router.get('/best-sellers', getBestSellers);
 router.get('/new-arrivals', getNewArrivals);
 router.get('/:slug', getProductBySlug);
 
-// Admin routes
-router.post('/', authenticate, requireRole('admin', 'apoteker'), createProduct);
-router.put('/:id', authenticate, requireRole('admin', 'apoteker'), updateProduct);
+// Admin routes with image upload
+router.post('/', authenticate, requireRole('admin', 'apoteker'), handleUploadError(uploadMultiple), createProduct);
+router.put('/:id', authenticate, requireRole('admin', 'apoteker'), handleUploadError(uploadMultiple), updateProduct);
 router.delete('/:id', authenticate, requireRole('admin', 'apoteker'), deleteProduct);
 router.patch('/:id/stock', authenticate, requireRole('admin', 'apoteker'), updateStock);
 

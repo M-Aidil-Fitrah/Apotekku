@@ -8,6 +8,7 @@ import {
 } from '../controllers/categoryController';
 import { authenticate } from '../middleware/auth';
 import { requireRole } from '../middleware/rbac';
+import { uploadSingle, handleUploadError } from '../middleware/upload';
 
 const router = Router();
 
@@ -15,9 +16,9 @@ const router = Router();
 router.get('/', getCategories);
 router.get('/:slug', getCategoryBySlug);
 
-// Admin routes
-router.post('/', authenticate, requireRole('admin', 'apoteker'), createCategory);
-router.put('/:id', authenticate, requireRole('admin', 'apoteker'), updateCategory);
+// Admin routes with image upload
+router.post('/', authenticate, requireRole('admin', 'apoteker'), handleUploadError(uploadSingle), createCategory);
+router.put('/:id', authenticate, requireRole('admin', 'apoteker'), handleUploadError(uploadSingle), updateCategory);
 router.delete('/:id', authenticate, requireRole('admin', 'apoteker'), deleteCategory);
 
 export default router;

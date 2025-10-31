@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { uploadFile } from '../controllers/uploadController';
 import { authenticate } from '../middleware/auth';
+import { uploadSingle, handleUploadError } from '../middleware/upload';
 
 const router = Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB
-
-router.post('/', authenticate, upload.single('file'), uploadFile);
+// General upload endpoint with optional folder parameter
+router.post('/', authenticate, handleUploadError(uploadSingle), uploadFile);
 
 export default router;
