@@ -73,6 +73,9 @@ export interface IOrder extends Document {
   customerNotes?: string;
   adminNotes?: string;
   
+  // Midtrans
+  paymentNotification?: any;
+  
   createdAt: Date;
   updatedAt: Date;
 }
@@ -230,6 +233,9 @@ const OrderSchema = new Schema<IOrder>(
     // Notes
     customerNotes: String,
     adminNotes: String,
+    
+    // Midtrans
+    paymentNotification: Schema.Types.Mixed,
   },
   {
     timestamps: true,

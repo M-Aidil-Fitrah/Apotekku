@@ -7,6 +7,7 @@ import 'express-async-errors';
 
 import { connectDB } from './config/database';
 import { errorHandler, notFound } from './middleware/errorHandler';
+import { midtransNotification } from './controllers/paymentController';
 
 // Auth Routes
 import authRoutes from './routes/authRoutes'; // Admin/Staff auth
@@ -18,6 +19,8 @@ import categoryRoutes from './routes/categoryRoutes';
 import orderRoutes from './routes/orderRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import prescriptionRoutes from './routes/prescriptionRoutes'; // Prescription management
+import paymentRoutes from './routes/paymentRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 
 // Load env variables
 dotenv.config();
@@ -59,6 +62,13 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
+
+// Payment & Upload
+app.use('/api/payments', paymentRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Midtrans notification webhook (public endpoint)
+app.post('/api/payments/notification', midtransNotification);
 
 // Error handling
 app.use(notFound);
