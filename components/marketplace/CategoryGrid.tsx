@@ -128,21 +128,21 @@ export const CategoryGrid = () => {
           className="text-center mb-16"
         >
           <motion.div
-            className="inline-block mb-4 px-6 py-2 rounded-full"
+            className="inline-block mb-6 px-6 py-2 rounded-full"
             style={{
               background: 'linear-gradient(135deg, #10b98122, #14b8a622)',
               border: '1px solid rgba(16, 185, 129, 0.2)',
             }}
           >
-            <span className="text-emerald-700 dark:text-emerald-300 font-semibold">
+            <span className="text-emerald-700 dark:text-emerald-300 font-semibold text-sm">
               Kategori Produk
             </span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
             Temukan Yang Anda Butuhkan
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Jelajahi berbagai kategori produk kesehatan berkualitas dengan harga terjangkau
           </p>
         </motion.div>

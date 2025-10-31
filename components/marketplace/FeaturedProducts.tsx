@@ -136,21 +136,21 @@ export const FeaturedProducts = () => {
           className="text-center mb-16"
         >
           <motion.div
-            className="inline-block mb-4 px-6 py-2 rounded-full"
+            className="inline-block mb-6 px-6 py-2 rounded-full"
             style={{
               background: 'linear-gradient(135deg, #10b98122, #14b8a622)',
               border: '1px solid rgba(16, 185, 129, 0.2)',
             }}
           >
-            <span className="text-emerald-700 dark:text-emerald-300 font-semibold">
+            <span className="text-emerald-700 dark:text-emerald-300 font-semibold text-sm">
               Produk Unggulan
             </span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
             Produk Terlaris Kami
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
             Dipilih dengan cermat oleh apoteker profesional kami
           </p>
         </motion.div>

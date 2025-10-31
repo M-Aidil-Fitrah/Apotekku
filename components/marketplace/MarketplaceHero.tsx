@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { gsap } from 'gsap';
-import { Search, ShoppingBag, Package, Shield, Star, TrendingUp } from 'lucide-react';
+import { Search, ShoppingBag, Package, Shield, Star, TrendingUp, Sparkles } from 'lucide-react';
 import { Button } from '@/components/shared/Button';
 import { useRouter } from 'next/navigation';
 
@@ -24,29 +24,7 @@ export const MarketplaceHero = () => {
   useEffect(() => {
     if (!heroRef.current) return;
 
-    // Text reveal animation
-    const chars = heroRef.current.querySelectorAll('.char');
-    gsap.from(chars, {
-      opacity: 0,
-      y: 50,
-      rotateX: -90,
-      stagger: 0.02,
-      duration: 1,
-      ease: 'back.out(1.7)',
-    });
-
-    // Floating stats cards
-    const stats = heroRef.current.querySelectorAll('.stat-card');
-    gsap.from(stats, {
-      opacity: 0,
-      y: 100,
-      stagger: 0.1,
-      duration: 1,
-      delay: 0.5,
-      ease: 'power3.out',
-    });
-
-    // Floating animation for decorative elements
+    // Floating animation for decorative elements only
     const floatingElements = heroRef.current.querySelectorAll('.floating-icon');
     floatingElements.forEach((el, index) => {
       gsap.to(el, {
@@ -59,14 +37,6 @@ export const MarketplaceHero = () => {
       });
     });
   }, []);
-
-  const splitText = (text: string) => {
-    return text.split('').map((char, index) => (
-      <span key={index} className="char inline-block">
-        {char === ' ' ? '\u00A0' : char}
-      </span>
-    ));
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,18 +144,11 @@ export const MarketplaceHero = () => {
             </motion.div>
 
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="block text-slate-900 dark:text-white">
-                {splitText('Belanja Obat & ')}
+              <span className="block text-slate-900 dark:text-white mb-2">
+                Belanja Obat &
               </span>
-              <span className="block">
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #10b981, #14b8a6, #06b6d4)',
-                  }}
-                >
-                  {splitText('Produk Kesehatan')}
-                </span>
+              <span className="block text-white drop-shadow-lg">
+                Produk Kesehatan
               </span>
             </h1>
 
@@ -238,8 +201,14 @@ export const MarketplaceHero = () => {
               <motion.div
                 key={index}
                 className="stat-card relative group"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: 0.5 + index * 0.1,
+                  ease: 'easeOut'
+                }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 300 }}
               >
                 <div
                   className="absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-100 blur transition-opacity"
@@ -283,11 +252,3 @@ export const MarketplaceHero = () => {
     </section>
   );
 };
-
-// Missing Sparkles icon
-const Sparkles = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M9 3L11 8L16 10L11 12L9 17L7 12L2 10L7 8L9 3Z" />
-    <path d="M19 3L20 6L23 7L20 8L19 11L18 8L15 7L18 6L19 3Z" />
-  </svg>
-);

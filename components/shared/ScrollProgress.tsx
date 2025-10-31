@@ -12,7 +12,7 @@ export const ScrollProgress = () => {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 origin-left z-50"
+      className="fixed top-[72px] left-0 right-0 h-1.5 bg-linear-to-r from-emerald-500 via-teal-500 to-cyan-500 origin-left z-40 shadow-lg"
       style={{ scaleX }}
     />
   );

@@ -24,7 +24,7 @@ export const Button = ({
   const baseStyles = 'relative inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300 overflow-hidden group';
   
   const variants = {
-    primary: 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/50 hover:scale-105',
+    primary: 'bg-linear-to-r from-emerald-500 to-teal-500 text-white hover:shadow-lg hover:shadow-emerald-500/50 hover:scale-105',
     secondary: 'bg-slate-900 text-white hover:bg-slate-800 hover:scale-105',
     outline: 'border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white',
   };

@@ -54,42 +54,30 @@ export const WhyShopWithUs = () => {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    // Animate cards with parallax
+    // Animate cards entrance only
     cardsRef.current.forEach((card, index) => {
       if (card) {
-        // Entrance animation
         gsap.fromTo(
           card,
           {
             opacity: 0,
-            y: 80,
-            scale: 0.9,
+            y: 60,
+            scale: 0.95,
           },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.8,
+            duration: 0.6,
             ease: 'power3.out',
             scrollTrigger: {
               trigger: card,
-              start: 'top 80%',
+              start: 'top 85%',
               toggleActions: 'play none none reverse',
             },
             delay: index * 0.1,
           }
         );
-
-        // Parallax effect
-        gsap.to(card, {
-          y: index % 2 === 0 ? -20 : 20,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: 1,
-          },
-        });
       }
     });
   }, []);
@@ -134,27 +122,27 @@ export const WhyShopWithUs = () => {
           className="text-center mb-16"
         >
           <motion.div
-            className="inline-block mb-4 px-6 py-2 rounded-full"
+            className="inline-block mb-6 px-6 py-2 rounded-full"
             style={{
               background: 'linear-gradient(135deg, #10b98122, #14b8a622)',
               border: '1px solid rgba(16, 185, 129, 0.2)',
             }}
           >
-            <span className="text-emerald-700 dark:text-emerald-300 font-semibold">
+            <span className="text-emerald-700 dark:text-emerald-300 font-semibold text-sm">
               Keunggulan Kami
             </span>
           </motion.div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
             Mengapa Belanja Di Sini?
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Komitmen kami untuk memberikan pelayanan kesehatan terbaik dengan standar tertinggi
           </p>
         </motion.div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10 max-w-6xl mx-auto mb-16">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -163,9 +151,11 @@ export const WhyShopWithUs = () => {
                 ref={(el) => {
                   cardsRef.current[index] = el;
                 }}
+                className="min-h-[280px]"
               >
                 <motion.div
-                  whileHover={{ y: -10, scale: 1.03 }}
+                  whileHover={{ y: -5, scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="group relative h-full"
                 >
                   {/* Glow Effect */}
@@ -177,12 +167,12 @@ export const WhyShopWithUs = () => {
                   />
 
                   {/* Card */}
-                  <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-lg group-hover:shadow-2xl transition-all duration-300 h-full">
+                  <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-700 shadow-lg group-hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
                     {/* Icon */}
                     <motion.div
                       whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                       transition={{ duration: 0.5 }}
-                      className="mb-6"
+                      className="mb-4"
                     >
                       <div
                         className="inline-block p-4 rounded-xl"
@@ -195,16 +185,16 @@ export const WhyShopWithUs = () => {
                     </motion.div>
 
                     {/* Content */}
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                    <h3 className="text-lg md:text-xl font-bold text-slate-900 dark:text-white mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-relaxed flex-1">
                       {feature.description}
                     </p>
 
                     {/* Hover Line */}
                     <div
-                      className="h-1 w-0 group-hover:w-full transition-all duration-500 mt-6 rounded-full"
+                      className="h-1 w-0 group-hover:w-full transition-all duration-500 mt-4 rounded-full"
                       style={{
                         background: `linear-gradient(to right, var(--${feature.color}-400), var(--${feature.color}-600))`,
                       }}
