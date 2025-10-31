@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Building, Home } from 'lucide-react';
-import { motion } from 'framer-motion';
-import gsap from 'gsap';
+import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Home, Shield, Zap, Heart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
 export default function RegisterPage() {
@@ -18,28 +17,7 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const logoRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // GSAP animations on mount
-    if (logoRef.current) {
-      gsap.fromTo(
-        logoRef.current,
-        { scale: 0, rotation: 180, opacity: 0 },
-        { scale: 1, rotation: 0, opacity: 1, duration: 1, ease: 'elastic.out(1, 0.5)' }
-      );
-    }
-
-    if (formRef.current) {
-      gsap.fromTo(
-        formRef.current,
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, delay: 0.3, ease: 'power3.out' }
-      );
-    }
-  }, []);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,282 +50,338 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-linear-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+    <div className="min-h-screen h-screen overflow-hidden flex flex-row-reverse bg-slate-950">
+      {/* Right Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative bg-linear-to-br from-purple-600 via-pink-600 to-rose-600 p-12 flex-col justify-between overflow-hidden">
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-32 h-32 border border-white rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 2,
+                repeat: Infinity,
+                delay: Math.random() * 2,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Logo & Brand */}
         <motion.div
-          className="absolute -top-40 -right-40 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10"
+        >
+          <Link href="/" className="inline-flex items-center gap-3 text-white/80 hover:text-white transition-colors group">
+            <Home className="w-5 h-5" />
+            <span className="text-sm font-medium">Kembali ke Beranda</span>
+          </Link>
+          
+          <div className="mt-16">
+            <motion.div 
+              className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-lg rounded-3xl mb-6 border border-white/20"
+              whileHover={{ scale: 1.05, rotate: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Pill className="w-10 h-10 text-white" />
+            </motion.div>
+            <h1 className="text-6xl font-bold text-white mb-4">
+              Bergabung dengan Kami
+            </h1>
+            <p className="text-xl text-white/80 max-w-md">
+              Daftar sekarang dan kelola apotek Anda dengan lebih efisien
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Features */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="relative z-10 space-y-4"
+        >
+          {[
+            { icon: Shield, text: 'Gratis untuk memulai' },
+            { icon: Zap, text: 'Setup dalam 5 menit' },
+            { icon: Heart, text: 'Support 24/7' },
+          ].map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 + index * 0.1 }}
+              className="flex items-center gap-3 text-white/90"
+            >
+              <div className="w-10 h-10 bg-white/10 backdrop-blur rounded-xl flex items-center justify-center">
+                <feature.icon className="w-5 h-5" />
+              </div>
+              <span className="font-medium">{feature.text}</span>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Decorative Elements */}
+        <motion.div
+          className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
-            duration: 10,
+            duration: 8,
             repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70"
-          animate={{
-            scale: [1, 1.3, 1],
-            rotate: [0, -90, 0],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-60"
-          animate={{
-            scale: [1, 1.1, 1],
-            x: [-50, 50, -50],
-            y: [-50, 50, -50],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
           }}
         />
       </div>
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Back to Home Link */}
-        <motion.div
-          className="mb-4"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            Kembali ke Beranda
-          </Link>
-        </motion.div>
-
-        {/* Logo & Title */}
-        <motion.div 
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div ref={logoRef} className="flex items-center justify-center mb-4">
-            <div className="relative">
-              <div 
-                className="absolute inset-0 rounded-2xl blur-lg opacity-50"
-                style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
-              ></div>
-              <div 
-                className="relative p-4 rounded-2xl"
-                style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
-              >
-                <Pill className="w-10 h-10 text-white" />
-              </div>
-            </div>
-          </div>
-          <motion.h1 
-            className="text-4xl font-bold"
-            style={{ 
-              background: 'linear-gradient(to right, #9333ea, #ec4899)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+      {/* Left Side - Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-slate-950 relative overflow-hidden">
+        {/* Mobile Background */}
+        <div className="absolute inset-0 lg:hidden">
+          <div className="absolute inset-0 bg-linear-to-br from-purple-600/10 via-pink-600/10 to-rose-600/10" />
+          <motion.div
+            className="absolute top-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.2, 0.3, 0.2],
             }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            Bergabung dengan Apotekku
-          </motion.h1>
-          <motion.p 
-            className="text-gray-600 mt-2 flex items-center justify-center gap-2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-          >
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-            Daftar untuk memulai
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-          </motion.p>
-        </motion.div>
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+            }}
+          />
+        </div>
 
-        {/* Register Form */}
-        <motion.div 
-          ref={formRef}
-          className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            Buat Akun Baru
+        <div className="w-full max-w-md relative z-10">
+          {/* Mobile Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:hidden mb-8 text-center"
+          >
+            <Link href="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-purple-400 transition-colors mb-6">
+              <Home className="w-4 h-4" />
+              <span className="text-sm">Kembali ke Beranda</span>
+            </Link>
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                <Pill className="w-6 h-6 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-white">Apotekku</h1>
+            </div>
+          </motion.div>
+
+          {/* Form Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-8"
+          >
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+              Buat Akun Baru
+            </h2>
+            <p className="text-slate-400">
+              Isi formulir di bawah untuk memulai
+            </p>
+          </motion.div>
+
+          {/* Error Message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl"
+              >
+                <p className="text-red-400 text-sm">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Register Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
-            >
-              ✨
-            </motion.div>
-          </h2>
-
-          {error && (
-            <motion.div 
-              className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
             >
-              {error}
-            </motion.div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Nama Lengkap
               </label>
               <div className="relative">
-                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
-                  id="name"
-                  name="name"
                   type="text"
+                  name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  onFocus={() => setFocusedField('name')}
+                  onBlur={() => setFocusedField(null)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
-                  placeholder="John Doe"
                   disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border-2 border-slate-800 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:bg-slate-900/80 outline-none transition-all"
+                  placeholder="John Doe"
                 />
+                {focusedField === 'name' && (
+                  <motion.div
+                    layoutId="focus-border"
+                    className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </div>
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.35 }}
+            >
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
-                  id="email"
-                  name="email"
                   type="email"
+                  name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onFocus={() => setFocusedField('email')}
+                  onBlur={() => setFocusedField(null)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
-                  placeholder="john@example.com"
                   disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border-2 border-slate-800 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:bg-slate-900/80 outline-none transition-all"
+                  placeholder="john@example.com"
                 />
+                {focusedField === 'email' && (
+                  <motion.div
+                    layoutId="focus-border"
+                    className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </div>
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
-                  id="password"
-                  name="password"
                   type="password"
+                  name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onFocus={() => setFocusedField('password')}
+                  onBlur={() => setFocusedField(null)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
-                  placeholder="••••••••"
                   disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border-2 border-slate-800 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:bg-slate-900/80 outline-none transition-all"
+                  placeholder="••••••••"
                 />
+                {focusedField === 'password' && (
+                  <motion.div
+                    layoutId="focus-border"
+                    className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </div>
-            </div>
+            </motion.div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.45 }}
+            >
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Konfirmasi Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
                   type="password"
+                  name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  onFocus={() => setFocusedField('confirmPassword')}
+                  onBlur={() => setFocusedField(null)}
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-white text-gray-900 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all hover:border-gray-300 placeholder:text-gray-400"
-                  placeholder="••••••••"
                   disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border-2 border-slate-800 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:bg-slate-900/80 outline-none transition-all"
+                  placeholder="••••••••"
                 />
+                {focusedField === 'confirmPassword' && (
+                  <motion.div
+                    layoutId="focus-border"
+                    className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
               </div>
-            </div>
+            </motion.div>
 
             <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
               type="submit"
               disabled={isLoading}
-              className="w-full text-white py-3.5 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-6"
-              style={{ background: 'linear-gradient(to right, #9333ea, #ec4899)' }}
+              className="w-full mt-6 py-3.5 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Memproses...
+                  <span>Memproses...</span>
                 </>
               ) : (
                 <>
-                  Daftar Sekarang
-                  <ArrowRight className="w-5 h-5" />
+                  <span>Daftar Sekarang</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </motion.button>
           </form>
 
           {/* Login Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 text-center"
+          >
+            <p className="text-slate-400 text-sm">
               Sudah punya akun?{' '}
-              <Link 
-                href="/login" 
-                className="font-semibold text-purple-600 hover:text-purple-700 transition-colors"
-              >
+              <Link href="/login" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
                 Masuk di sini
               </Link>
             </p>
-          </div>
-
-          {/* Note */}
-          <motion.div 
-            className="mt-6 p-4 rounded-xl border border-yellow-100"
-            style={{ background: 'linear-gradient(to right, #fef3c7, #fed7aa)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            <p className="text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1">
-              <Building className="w-3 h-3 text-yellow-600" />
-              Catatan
-            </p>
-            <p className="text-xs text-gray-600">
-              Untuk demo, silakan gunakan akun yang sudah tersedia di halaman login.
-            </p>
           </motion.div>
-        </motion.div>
 
-        <motion.p 
-          className="text-center text-sm text-gray-500 mt-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-        >
-          © 2025 Apotekku. Crafted with ❤️
-        </motion.p>
+        </div>
       </div>
     </div>
   );
