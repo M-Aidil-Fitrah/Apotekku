@@ -153,7 +153,7 @@ export default function CheckoutPage() {
               toast.error('Pembayaran gagal. Silakan coba lagi.');
             },
             onClose: function() {
-              toast.info('Pembayaran dibatalkan');
+              toast('Pembayaran dibatalkan', { icon: 'ℹ️' });
               router.push(`/marketplace/orders?orderId=${order._id}`);
             }
           });
