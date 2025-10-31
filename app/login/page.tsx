@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/auth';
+import { authService } from '@/lib/api/auth';
 import { Pill, Loader2, Mail, Lock, ArrowRight, Sparkles, Home, Shield, Zap, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const login = useAuthStore((state) => state.login);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,24 +22,27 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await login(email, password);
-      
-      // Get user from auth store after login
-      const user = useAuthStore.getState().user;
-      
-      // Check role and redirect
-      if (user) {
-        // If user type is 'customer' with role 'buyer', redirect to landing page
-        if ('role' in user && user.role === 'buyer') {
-          router.push('/');
-        } 
-        // If user type is 'user' with roles array (admin/apoteker), redirect to dashboard
-        else if ('roles' in user && Array.isArray(user.roles)) {
-          router.push('/dashboard');
+      // Try customer login first
+      try {
+        const response = await authService.loginCustomer({ email, password });
+        if (response.success) {
+          router.push('/marketplace');
+          return;
         }
-        // Default fallback to landing page
-        else {
-          router.push('/');
+      } catch (customerError: any) {
+        // If customer login fails, try staff login
+        if (customerError.response?.status === 401) {
+          const response = await authService.login({ email, password });
+          if (response.success) {
+            const user = response.data.user;
+            // Staff/Admin always go to dashboard
+            if (user.roles && user.roles.length > 0) {
+              router.push('/dashboard');
+              return;
+            }
+          }
+        } else {
+          throw customerError;
         }
       }
     } catch (err: any) {

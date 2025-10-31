@@ -1,200 +1,90 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  Search,
-  SlidersHorizontal,
-  Star,
-  ShoppingCart,
-  Grid3x3,
-  LayoutList,
-  X,
-  ChevronDown,
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getProducts } from '@/lib/api/product';
+import { getCategories } from '@/lib/api/category';
+import { Product } from '@/lib/api/product';
+import { Category } from '@/lib/api/category';
+import { useCart } from '@/lib/store/marketplaceCart';
+import { 
+  Search, Filter, Grid, List, ChevronDown, ShoppingCart, 
+  Star, TrendingUp, Package, Heart, Loader2 
 } from 'lucide-react';
-import { Button } from '@/components/shared/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/shared/Navbar';
-import { ScrollProgress } from '@/components/shared/ScrollProgress';
-import { Footer } from '@/components/landing/Footer';
 import { CartDrawer } from '@/components/marketplace/CartDrawer';
-import Link from 'next/link';
-
-gsap.registerPlugin(ScrollTrigger);
-
-// Mock products data - akan diganti dengan API
-const mockProducts = [
-  {
-    id: '1',
-    name: 'Paracetamol 500mg',
-    slug: 'paracetamol-500mg',
-    category: 'Obat Bebas',
-    price: 15000,
-    originalPrice: 20000,
-    rating: 4.8,
-    reviews: 124,
-    image: '💊',
-    inStock: true,
-    soldCount: 450,
-  },
-  {
-    id: '2',
-    name: 'Vitamin C 1000mg',
-    slug: 'vitamin-c-1000mg',
-    category: 'Vitamin & Suplemen',
-    price: 85000,
-    originalPrice: 100000,
-    rating: 4.9,
-    reviews: 256,
-    image: '🌿',
-    inStock: true,
-    soldCount: 780,
-  },
-  {
-    id: '3',
-    name: 'Masker Medis 3 Ply',
-    slug: 'masker-medis-3-ply',
-    category: 'Alat Kesehatan',
-    price: 45000,
-    originalPrice: null,
-    rating: 4.7,
-    reviews: 89,
-    image: '😷',
-    inStock: true,
-    soldCount: 320,
-  },
-  {
-    id: '4',
-    name: 'Hand Sanitizer 100ml',
-    slug: 'hand-sanitizer-100ml',
-    category: 'Alat Kesehatan',
-    price: 25000,
-    originalPrice: 30000,
-    rating: 4.6,
-    reviews: 78,
-    image: '🧴',
-    inStock: true,
-    soldCount: 560,
-  },
-  {
-    id: '5',
-    name: 'Vitamin D3 1000 IU',
-    slug: 'vitamin-d3-1000-iu',
-    category: 'Vitamin & Suplemen',
-    price: 95000,
-    originalPrice: null,
-    rating: 4.9,
-    reviews: 167,
-    image: '☀️',
-    inStock: true,
-    soldCount: 290,
-  },
-  {
-    id: '6',
-    name: 'Ibuprofen 400mg',
-    slug: 'ibuprofen-400mg',
-    category: 'Obat Bebas',
-    price: 18000,
-    originalPrice: 25000,
-    rating: 4.7,
-    reviews: 143,
-    image: '💊',
-    inStock: true,
-    soldCount: 410,
-  },
-  {
-    id: '7',
-    name: 'Multivitamin Complete',
-    slug: 'multivitamin-complete',
-    category: 'Vitamin & Suplemen',
-    price: 120000,
-    originalPrice: 150000,
-    rating: 4.8,
-    reviews: 201,
-    image: '💪',
-    inStock: true,
-    soldCount: 670,
-  },
-  {
-    id: '8',
-    name: 'Thermometer Digital',
-    slug: 'thermometer-digital',
-    category: 'Alat Kesehatan',
-    price: 75000,
-    originalPrice: null,
-    rating: 4.6,
-    reviews: 92,
-    image: '🌡️',
-    inStock: true,
-    soldCount: 180,
-  },
-];
-
-const categories = [
-  'Semua Kategori',
-  'Obat Bebas',
-  'Obat Resep',
-  'Vitamin & Suplemen',
-  'Alat Kesehatan',
-  'Perawatan Kulit',
-  'Ibu & Anak',
-];
+import { ScrollProgress } from '@/components/shared/ScrollProgress';
+import { formatCurrency } from '@/lib/utils';
 
 const sortOptions = [
   { value: 'popular', label: 'Paling Populer' },
   { value: 'newest', label: 'Terbaru' },
-  { value: 'price-low', label: 'Harga Terendah' },
-  { value: 'price-high', label: 'Harga Tertinggi' },
+  { value: 'price_asc', label: 'Harga Terendah' },
+  { value: 'price_desc', label: 'Harga Tertinggi' },
   { value: 'rating', label: 'Rating Tertinggi' },
 ];
 
 export default function ProductsPage() {
+  const router = useRouter();
+  const { addItem, openCart } = useCart();
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua Kategori');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [sortBy, setSortBy] = useState('popular');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 500000]);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Fetch products and categories
   useEffect(() => {
-    // Animate product cards on mount
-    cardsRef.current.forEach((card, index) => {
-      if (card) {
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 50, scale: 0.9 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.6,
-            delay: index * 0.05,
-            ease: 'power3.out',
-          }
-        );
-      }
-    });
-  }, [viewMode, selectedCategory, sortBy]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [productsData, categoriesData] = await Promise.all([
+          getProducts({
+            search: searchQuery || undefined,
+            category: selectedCategory || undefined,
+            sort: sortBy as any,
+            minPrice: priceRange[0],
+            maxPrice: priceRange[1],
+            inStock: true,
+          }),
+          getCategories(),
+        ]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
+        setProducts(productsData.data);
+        setCategories(categoriesData.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchQuery, selectedCategory, sortBy, priceRange]);
+
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: product.mainImage,
+      stock: product.stockQuantity,
+      requiresPrescription: product.requiresPrescription,
+      quantity: 1,
+    });
+    openCart();
   };
 
-  const filteredProducts = mockProducts.filter((product) => {
-    if (selectedCategory !== 'Semua Kategori' && product.category !== selectedCategory) {
-      return false;
-    }
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    return true;
-  });
+  const handleProductClick = (slug: string) => {
+    router.push(`/marketplace/products/${slug}`);
+  };
 
   return (
     <div className="relative bg-slate-50 dark:bg-slate-900 min-h-screen">
@@ -216,313 +106,206 @@ export default function ProductsPage() {
 
         <div className="container mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto text-center mb-8"
+            className="max-w-3xl"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              Katalog Produk
+              Produk Kesehatan
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-400">
-              Temukan produk kesehatan yang Anda butuhkan
+            <p className="text-lg text-slate-600 dark:text-slate-300">
+              Temukan produk kesehatan berkualitas untuk kebutuhan Anda
             </p>
           </motion.div>
 
           {/* Search Bar */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto"
+            transition={{ delay: 0.1 }}
+            className="mt-8 max-w-2xl"
           >
-            <div className="relative group">
-              <div
-                className="absolute -inset-1 rounded-2xl opacity-50 blur-lg group-hover:opacity-100 transition-opacity"
-                style={{
-                  background: 'linear-gradient(to right, #10b981, #14b8a6)',
-                }}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari produk kesehatan..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
               />
-              <div className="relative flex items-center bg-white dark:bg-slate-800 rounded-2xl shadow-xl">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari produk..."
-                  className="flex-1 px-6 py-4 bg-transparent border-none focus:outline-none text-slate-900 dark:text-white"
-                />
-                <Button
-                  variant="primary"
-                  className="m-2"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #10b981, #14b8a6)',
-                  }}
-                >
-                  <Search className="w-5 h-5" />
-                </Button>
-              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Filters & Products */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar Filters */}
-            <motion.aside
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="lg:w-64 shrink-0"
-            >
-              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5" />
-                  Filter
-                </h3>
+          {/* Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Category Filter */}
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">Semua Kategori</option>
+                {categories.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
 
-                {/* Categories */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                    Kategori
-                  </h4>
-                  <div className="space-y-2">
-                    {categories.map((category) => (
-                      <button
-                        key={category}
-                        onClick={() => setSelectedCategory(category)}
-                        className={`w-full text-left px-4 py-2 rounded-lg transition-all ${
-                          selectedCategory === category
-                            ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 font-semibold'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-                        }`}
-                      >
-                        {category}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Sort By */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                {/* Price Range */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                    Rentang Harga
-                  </h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="number"
-                        placeholder="Min"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
-                      />
-                      <span className="text-slate-500">-</span>
-                      <input
-                        type="number"
-                        placeholder="Max"
-                        className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white text-sm"
-                      />
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full">
-                      Terapkan
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Reset Filters */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-red-600 border-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-                >
-                  Reset Filter
-                </Button>
-              </div>
-            </motion.aside>
-
-            {/* Products Grid */}
-            <div className="flex-1">
-              {/* Toolbar */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                <p className="text-slate-600 dark:text-slate-400">
-                  Menampilkan <span className="font-semibold text-slate-900 dark:text-white">{filteredProducts.length}</span> produk
-                </p>
-
-                <div className="flex items-center gap-3">
-                  {/* Sort */}
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm"
-                  >
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-
-                  {/* View Mode */}
-                  <div className="flex items-center gap-1 p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded ${
-                        viewMode === 'grid'
-                          ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-600'
-                          : 'text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      <Grid3x3 className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`p-2 rounded ${
-                        viewMode === 'list'
-                          ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-600'
-                          : 'text-slate-600 dark:text-slate-400'
-                      }`}
-                    >
-                      <LayoutList className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Products */}
-              <AnimatePresence mode="wait">
-                <div
-                  className={
-                    viewMode === 'grid'
-                      ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-                      : 'space-y-4'
-                  }
-                >
-                  {filteredProducts.map((product, index) => (
-                    <div
-                      key={product.id}
-                      ref={(el) => {
-                        cardsRef.current[index] = el;
-                      }}
-                    >
-                      <Link href={`/marketplace/products/${product.slug}`}>
-                        <motion.div
-                          layout
-                          whileHover={{ y: -8, scale: 1.02 }}
-                          className={`group bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 h-full ${
-                            viewMode === 'list' ? 'flex flex-row' : 'flex flex-col'
-                          }`}
-                        >
-                          {/* Image */}
-                          <div
-                            className={`relative bg-slate-100 dark:bg-slate-700 overflow-hidden ${
-                              viewMode === 'list' ? 'w-48 h-48' : 'h-56'
-                            }`}
-                          >
-                            <div className="w-full h-full flex items-center justify-center text-6xl">
-                              {product.image}
-                            </div>
-
-                            {product.originalPrice && (
-                              <div className="absolute top-3 right-3">
-                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
-                                  -
-                                  {Math.round(
-                                    ((product.originalPrice - product.price) /
-                                      product.originalPrice) *
-                                      100
-                                  )}
-                                  %
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Content */}
-                          <div className="p-5 flex-1 flex flex-col">
-                            <div className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mb-2">
-                              {product.category}
-                            </div>
-
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                              {product.name}
-                            </h3>
-
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                <span className="font-semibold text-slate-900 dark:text-white">
-                                  {product.rating}
-                                </span>
-                              </div>
-                              <span className="text-sm text-slate-500 dark:text-slate-400">
-                                ({product.reviews})
-                              </span>
-                              <span className="text-sm text-slate-500 dark:text-slate-400">
-                                • {product.soldCount} terjual
-                              </span>
-                            </div>
-
-                            <div className="mt-auto">
-                              {product.originalPrice && (
-                                <p className="text-sm text-slate-500 dark:text-slate-400 line-through">
-                                  {formatPrice(product.originalPrice)}
-                                </p>
-                              )}
-                              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-3">
-                                {formatPrice(product.price)}
-                              </p>
-
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                className="w-full"
-                                style={{
-                                  backgroundImage: 'linear-gradient(to right, #10b981, #14b8a6)',
-                                }}
-                              >
-                                <ShoppingCart className="w-4 h-4 mr-2" />
-                                Tambah ke Keranjang
-                              </Button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </AnimatePresence>
-
-              {/* Pagination */}
-              <div className="flex justify-center items-center gap-2 mt-12">
-                <Button variant="outline" size="sm" disabled>
-                  Previous
-                </Button>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((page) => (
-                    <button
-                      key={page}
-                      className={`w-10 h-10 rounded-lg font-semibold ${
-                        page === 1
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
-              </div>
+            {/* View Mode */}
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+              >
+                <List className="w-5 h-5" />
+              </button>
             </div>
           </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+            </div>
+          )}
+
+          {/* Products Grid */}
+          {!loading && products.length > 0 && (
+            <div className={`grid ${
+              viewMode === 'grid'
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1'
+            } gap-6`}>
+              {products.map((product) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Product Image */}
+                  <div 
+                    className="relative aspect-square bg-slate-100 dark:bg-slate-700 cursor-pointer overflow-hidden"
+                    onClick={() => handleProductClick(product.slug)}
+                  >
+                    <img
+                      src={product.mainImage || '/placeholder-product.jpg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    {product.compareAtPrice && (
+                      <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                        {Math.round((1 - product.price / product.compareAtPrice) * 100)}% OFF
+                      </div>
+                    )}
+                    {product.stockQuantity === 0 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="bg-white px-4 py-2 rounded-lg font-bold text-slate-900">
+                          Stok Habis
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <h3 
+                      className="font-semibold text-slate-900 dark:text-white mb-2 line-clamp-2 cursor-pointer hover:text-emerald-600 transition-colors"
+                      onClick={() => handleProductClick(product.slug)}
+                    >
+                      {product.name}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium text-slate-900 dark:text-white">
+                          {product.averageRating.toFixed(1)}
+                        </span>
+                      </div>
+                      <span className="text-sm text-slate-500">
+                        ({product.reviewCount})
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        · {product.soldCount} terjual
+                      </span>
+                    </div>
+
+                    <div className="mb-4">
+                      {product.compareAtPrice && (
+                        <span className="text-sm text-slate-400 line-through mr-2">
+                          {formatCurrency(product.compareAtPrice)}
+                        </span>
+                      )}
+                      <span className="text-xl font-bold text-emerald-600">
+                        {formatCurrency(product.price)}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      disabled={product.stockQuantity === 0}
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      {product.stockQuantity === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && products.length === 0 && (
+            <div className="text-center py-20">
+              <Package className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                Produk Tidak Ditemukan
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400">
+                Coba ubah filter atau kata kunci pencarian Anda
+              </p>
+            </div>
+          )}
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }
-

@@ -13,26 +13,26 @@ export const comparePassword = async (
   return bcrypt.compare(password, hashedPassword);
 };
 
-export const generateToken = (userId: string): string => {
+export const generateToken = (userId: string, userType: 'user' | 'customer' = 'user'): string => {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
     throw new Error('JWT_SECRET tidak terkonfigurasi');
   }
 
-  return jwt.sign({ userId }, secret, { 
+  return jwt.sign({ userId, userType }, secret, { 
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };
 
-export const generateRefreshToken = (userId: string): string => {
+export const generateRefreshToken = (userId: string, userType: 'user' | 'customer' = 'user'): string => {
   const secret = process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET;
 
   if (!secret) {
     throw new Error('JWT_REFRESH_SECRET tidak terkonfigurasi');
   }
 
-  return jwt.sign({ userId }, secret, { 
+  return jwt.sign({ userId, userType }, secret, { 
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d'
   });
 };

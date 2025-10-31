@@ -33,11 +33,16 @@ export const authenticate = async (
       throw new Error('JWT_SECRET tidak terkonfigurasi');
     }
 
-    const decoded = jwt.verify(token, secret) as { id: string; type?: string; userId?: string };
+    const decoded = jwt.verify(token, secret) as { 
+      id?: string; 
+      userId?: string; 
+      type?: string;
+      userType?: string;
+    };
     
-    // Support both old (userId) and new (id + type) format
+    // Support both old and new token formats
     const userId = decoded.id || decoded.userId;
-    const userType = decoded.type || 'admin';
+    const userType = decoded.userType || decoded.type || 'user';
 
     if (userType === 'customer') {
       const customer = await Customer.findById(userId);

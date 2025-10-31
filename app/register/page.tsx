@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pill, Loader2, Mail, Lock, User, ArrowRight, Sparkles, Home, Shield, Zap, Heart } from 'lucide-react';
+import { authService } from '@/lib/api/auth';
+import { Pill, Loader2, Mail, Lock, User, Phone, ArrowRight, Sparkles, Home, Shield, Zap, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -33,13 +35,30 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!formData.phone) {
+      setError('Nomor telepon harus diisi');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API call (karena belum ada endpoint register di backend)
-    setTimeout(() => {
-      setError('Fitur registrasi belum tersedia. Silakan gunakan akun demo untuk login.');
+    try {
+      const response = await authService.registerCustomer({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+
+      if (response.success) {
+        // Redirect to marketplace after successful registration
+        router.push('/marketplace');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -269,6 +288,38 @@ export default function RegisterPage() {
                   placeholder="john@example.com"
                 />
                 {focusedField === 'email' && (
+                  <motion.div
+                    layoutId="focus-border"
+                    className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.375 }}
+            >
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Nomor Telepon
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField('phone')}
+                  onBlur={() => setFocusedField(null)}
+                  required
+                  disabled={isLoading}
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border-2 border-slate-800 rounded-xl text-white placeholder-slate-500 focus:border-purple-500 focus:bg-slate-900/80 outline-none transition-all"
+                  placeholder="08123456789"
+                />
+                {focusedField === 'phone' && (
                   <motion.div
                     layoutId="focus-border"
                     className="absolute inset-0 border-2 border-purple-500 rounded-xl pointer-events-none"
