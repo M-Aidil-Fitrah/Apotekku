@@ -116,3 +116,29 @@ export const getNewArrivals = async (): Promise<ProductsResponse> => {
   const response = await apiClient.get<ProductsResponse>('/api/products/new-arrivals');
   return response.data;
 };
+
+// Create product with image upload (Admin only)
+export const createProduct = async (formData: FormData): Promise<ProductResponse> => {
+  const response = await apiClient.post<ProductResponse>('/api/products', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// Update product with image upload (Admin only)
+export const updateProduct = async (id: string, formData: FormData): Promise<ProductResponse> => {
+  const response = await apiClient.put<ProductResponse>(`/api/products/${id}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+// Delete product (Admin only)
+export const deleteProduct = async (id: string): Promise<{ success: boolean; message: string }> => {
+  const response = await apiClient.delete(`/api/products/${id}`);
+  return response.data;
+};

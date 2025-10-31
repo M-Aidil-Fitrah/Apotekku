@@ -8,11 +8,8 @@ import { useCart } from '@/lib/store/marketplaceCart';
 import Link from 'next/link';
 
 const navLinks = [
-  { label: 'Beranda', href: '#home' },
-  { label: 'Fitur', href: '#features' },
+  { label: 'Beranda', href: '/' },
   { label: 'Marketplace', href: '/marketplace' },
-  { label: 'Tentang', href: '#about' },
-  { label: 'Kontak', href: '#contact' },
 ];
 
 export const Navbar = () => {

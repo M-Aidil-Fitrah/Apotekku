@@ -1,37 +1,90 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Navbar } from '@/components/shared/Navbar';
+import { MarketplaceNavbar } from '@/components/marketplace/MarketplaceNavbar';
 import { Footer } from '@/components/landing/Footer';
 import { CartDrawer } from '@/components/marketplace/CartDrawer';
 import { useCart } from '@/lib/store/marketplaceCart';
+import { useAuthStore } from '@/lib/store/auth';
+import { usePaymentStore } from '@/lib/store/payment';
 import { Button } from '@/components/shared/Button';
-import { MapPin, Phone, User, Mail, MessageSquare, CreditCard, Truck, Package, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, User, MessageSquare, CreditCard, Package, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
+import { createOrder, CreateOrderData } from '@/lib/api/order';
+import { getCustomerProfile } from '@/lib/api/customer';
+
+declare global {
+  interface Window {
+    snap?: any;
+  }
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, getSubtotal, getTax, getTotal, clearCart } = useCart();
+  const { items, getSubtotal, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuthStore();
+  const { createPayment } = usePaymentStore();
+  
   const [isProcessing, setIsProcessing] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const [shippingCost] = useState(15000);
   
   const [formData, setFormData] = useState({
-    // Customer Info
-    name: '',
-    email: '',
+    recipientName: '',
     phone: '',
-    
-    // Shipping Address
-    address: '',
+    addressLine1: '',
+    addressLine2: '',
     city: '',
     province: '',
     postalCode: '',
     notes: '',
-    
-    // Payment
-    paymentMethod: 'cod' as 'cod' | 'transfer' | 'ewallet',
+    paymentMethod: 'credit_card' as 'cod' | 'transfer' | 'ewallet' | 'credit_card',
   });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error('Silakan login terlebih dahulu');
+      router.push('/login?redirect=/marketplace/checkout');
+      return;
+    }
+    loadCustomerData();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+    script.setAttribute('data-client-key', process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '');
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const loadCustomerData = async () => {
+    try {
+      const response = await getCustomerProfile();
+      const customer = response.data;
+      const defaultAddress = customer.addresses?.find(addr => addr.isDefault) || customer.addresses?.[0];
+      
+      setFormData(prev => ({
+        ...prev,
+        recipientName: customer.name || '',
+        phone: customer.phone || '',
+        addressLine1: defaultAddress?.addressLine1 || '',
+        addressLine2: defaultAddress?.addressLine2 || '',
+        city: defaultAddress?.city || '',
+        province: defaultAddress?.province || '',
+        postalCode: defaultAddress?.postalCode || '',
+      }));
+    } catch (error) {
+      console.error('Failed to load customer data:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -41,16 +94,83 @@ export default function CheckoutPage() {
     }).format(price);
   };
 
+  const subtotal = getSubtotal();
+  const tax = Math.round(subtotal * 0.11);
+  const total = subtotal + shippingCost + tax;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAuthenticated || !user) {
+      toast.error('Silakan login terlebih dahulu');
+      return;
+    }
+
     setIsProcessing(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const orderData: CreateOrderData = {
+        items: items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+        shippingAddress: {
+          recipientName: formData.recipientName,
+          phone: formData.phone,
+          addressLine1: formData.addressLine1,
+          addressLine2: formData.addressLine2,
+          city: formData.city,
+          province: formData.province,
+          postalCode: formData.postalCode,
+          notes: formData.notes,
+        },
+        paymentMethod: formData.paymentMethod,
+        shippingCost,
+        customerNotes: formData.notes,
+      };
 
-    // Clear cart and redirect
-    clearCart();
-    router.push('/marketplace/orders/success');
+      const orderResponse = await createOrder(orderData);
+      const order = orderResponse.data;
+
+      toast.success('Pesanan berhasil dibuat!');
+
+      if (formData.paymentMethod !== 'cod') {
+        const paymentResponse = await createPayment(order._id);
+        
+        if (paymentResponse && paymentResponse.token && window.snap) {
+          window.snap.pay(paymentResponse.token, {
+            onSuccess: function(result: any) {
+              clearCart();
+              toast.success('Pembayaran berhasil!');
+              router.push(`/marketplace/orders?orderId=${order._id}`);
+            },
+            onPending: function(result: any) {
+              clearCart();
+              toast.success('Menunggu pembayaran...');
+              router.push(`/marketplace/orders?orderId=${order._id}`);
+            },
+            onError: function(result: any) {
+              toast.error('Pembayaran gagal. Silakan coba lagi.');
+            },
+            onClose: function() {
+              toast.info('Pembayaran dibatalkan');
+              router.push(`/marketplace/orders?orderId=${order._id}`);
+            }
+          });
+        } else if (paymentResponse && paymentResponse.redirect_url) {
+          clearCart();
+          window.location.href = paymentResponse.redirect_url;
+        }
+      } else {
+        clearCart();
+        router.push(`/marketplace/orders?orderId=${order._id}`);
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast.error(error.response?.data?.message || 'Gagal memproses pesanan');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -63,7 +183,7 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-        <Navbar />
+        <MarketplaceNavbar />
         <div className="relative z-10 container mx-auto px-4 py-32">
           <div className="max-w-md mx-auto text-center">
             <div className="w-32 h-32 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -87,11 +207,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <Navbar />
+      <MarketplaceNavbar />
       <CartDrawer />
 
       <div className="relative z-10 container mx-auto px-4 py-24">
-        {/* Header */}
         <div className="mb-8">
           <Link href="/marketplace/products" className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 mb-4">
             <ArrowLeft className="w-4 h-4" />
@@ -101,312 +220,284 @@ export default function CheckoutPage() {
             Checkout
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-2">
-            Lengkapi data pengiriman dan pembayaran Anda
+            Lengkapi data pengiriman dan metode pembayaran
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Form Section */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Customer Information */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700"
+                className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900 rounded-lg flex items-center justify-center">
-                    <User className="w-5 h-5 text-emerald-600" />
+                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Informasi Pembeli</h2>
-                    <p className="text-sm text-slate-500">Data diri Anda</p>
-                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Alamat Pengiriman
+                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Nama Penerima <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="text"
+                        name="recipientName"
+                        value={formData.recipientName}
+                        onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                        required
+                        disabled={loadingProfile}
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Nama Lengkap *
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Nomor Telepon <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                        required
+                        disabled={loadingProfile}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Kode Pos <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="postalCode"
+                      value={formData.postalCode}
                       onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="John Doe"
+                      disabled={loadingProfile}
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="john@example.com"
-                    />
-                  </div>
+
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Nomor Telepon *
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Alamat Lengkap <span className="text-red-500">*</span>
                     </label>
                     <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
+                      type="text"
+                      name="addressLine1"
+                      value={formData.addressLine1}
                       onChange={handleChange}
+                      placeholder="Jalan, nomor rumah, RT/RW"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="08123456789"
+                      disabled={loadingProfile}
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Detail Alamat (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      name="addressLine2"
+                      value={formData.addressLine2}
+                      onChange={handleChange}
+                      placeholder="Patokan, blok, dll"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                      disabled={loadingProfile}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Kota/Kabupaten <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                      required
+                      disabled={loadingProfile}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Provinsi <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="province"
+                      value={formData.province}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                      required
+                      disabled={loadingProfile}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      Catatan Pengiriman (Opsional)
+                    </label>
+                    <div className="relative">
+                      <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                      <textarea
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        rows={3}
+                        placeholder="Contoh: Tolong kirim pagi hari"
+                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:ring-2 focus:ring-emerald-500"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
 
-              {/* Shipping Address */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700"
+                className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/20 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Alamat Pengiriman</h2>
-                    <p className="text-sm text-slate-500">Tempat pengiriman pesanan</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Alamat Lengkap *
-                    </label>
-                    <textarea
-                      name="address"
-                      value={formData.address}
-                      onChange={handleChange}
-                      required
-                      rows={3}
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Jl. Contoh No. 123, RT 01/RW 02"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        Kota/Kabupaten *
-                      </label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="Jakarta"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        Provinsi *
-                      </label>
-                      <input
-                        type="text"
-                        name="province"
-                        value={formData.province}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="DKI Jakarta"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        Kode Pos *
-                      </label>
-                      <input
-                        type="text"
-                        name="postalCode"
-                        value={formData.postalCode}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="12345"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Catatan (Opsional)
-                    </label>
-                    <textarea
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleChange}
-                      rows={2}
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Contoh: Rumah pagar hijau, depan indomaret"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Payment Method */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Metode Pembayaran</h2>
-                    <p className="text-sm text-slate-500">Pilih cara bayar Anda</p>
-                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Metode Pembayaran
+                  </h2>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-4 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-emerald-500 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cod"
-                      checked={formData.paymentMethod === 'cod'}
-                      onChange={handleChange}
-                      className="w-5 h-5 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <div className="flex-1">
-                      <p className="font-semibold text-slate-900 dark:text-white">Cash on Delivery (COD)</p>
-                      <p className="text-sm text-slate-500">Bayar saat barang diterima</p>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-4 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-emerald-500 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="transfer"
-                      checked={formData.paymentMethod === 'transfer'}
-                      onChange={handleChange}
-                      className="w-5 h-5 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <div className="flex-1">
-                      <p className="font-semibold text-slate-900 dark:text-white">Transfer Bank</p>
-                      <p className="text-sm text-slate-500">BCA, Mandiri, BNI, BRI</p>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-4 p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-emerald-500 transition-colors">
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="ewallet"
-                      checked={formData.paymentMethod === 'ewallet'}
-                      onChange={handleChange}
-                      className="w-5 h-5 text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <div className="flex-1">
-                      <p className="font-semibold text-slate-900 dark:text-white">E-Wallet</p>
-                      <p className="text-sm text-slate-500">GoPay, OVO, DANA, ShopeePay</p>
-                    </div>
-                  </label>
+                  {[
+                    { value: 'credit_card', label: 'Kartu Kredit/Debit', desc: 'Visa, Mastercard, JCB' },
+                    { value: 'ewallet', label: 'E-Wallet', desc: 'GoPay, OVO, DANA, ShopeePay' },
+                    { value: 'transfer', label: 'Transfer Bank', desc: 'BCA, BNI, Mandiri, BRI' },
+                    { value: 'cod', label: 'Bayar di Tempat (COD)', desc: 'Bayar saat produk diterima' },
+                  ].map((method) => (
+                    <label key={method.value} className="flex items-center p-4 rounded-lg border-2 border-slate-200 dark:border-slate-700 cursor-pointer hover:border-emerald-500 transition-colors">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value={method.value}
+                        checked={formData.paymentMethod === method.value}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-emerald-600"
+                      />
+                      <div className="ml-3">
+                        <div className="font-medium text-slate-900 dark:text-white">{method.label}</div>
+                        <div className="text-sm text-slate-500">{method.desc}</div>
+                      </div>
+                    </label>
+                  ))}
                 </div>
               </motion.div>
+
+              {items.some(item => item.requiresPrescription) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
+                >
+                  <div className="flex gap-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-medium text-amber-900 dark:text-amber-200 mb-1">
+                        Resep Dokter Diperlukan
+                      </h3>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        Beberapa produk memerlukan resep dokter. Tim kami akan menghubungi Anda untuk verifikasi.
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg border border-slate-200 dark:border-slate-700 sticky top-24"
+                className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 sticky top-24"
               >
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Ringkasan Pesanan</h2>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6">
+                  Ringkasan Pesanan
+                </h2>
 
-                {/* Items */}
                 <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
                   {items.map((item) => (
                     <div key={item.productId} className="flex gap-3">
-                      <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center shrink-0 text-2xl">
-                        {item.image}
-                      </div>
+                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 dark:text-white text-sm truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {item.quantity} × {formatPrice(item.price)}
-                        </p>
+                        <h3 className="font-medium text-slate-900 dark:text-white text-sm truncate">{item.name}</h3>
+                        <p className="text-sm text-slate-500">{item.quantity} x {formatPrice(item.price)}</p>
                       </div>
-                      <p className="font-semibold text-slate-900 dark:text-white text-sm">
-                        {formatPrice(item.price * item.quantity)}
-                      </p>
+                      <div className="font-medium text-slate-900 dark:text-white">{formatPrice(item.price * item.quantity)}</div>
                     </div>
                   ))}
                 </div>
 
-                {/* Price Details */}
                 <div className="space-y-3 pt-6 border-t border-slate-200 dark:border-slate-700">
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                    <span>Subtotal ({items.length} item)</span>
-                    <span>{formatPrice(getSubtotal())}</span>
+                    <span>Subtotal ({items.length} produk)</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                    <span>Ongkos Kirim</span>
-                    <span className="text-emerald-600 font-semibold">GRATIS</span>
+                    <span>Ongkir</span>
+                    <span>{formatPrice(shippingCost)}</span>
                   </div>
                   <div className="flex justify-between text-slate-600 dark:text-slate-400">
                     <span>PPN (11%)</span>
-                    <span>{formatPrice(getTax())}</span>
+                    <span>{formatPrice(tax)}</span>
                   </div>
-                  <div className="h-px bg-slate-200 dark:bg-slate-700" />
-                  <div className="flex justify-between text-lg font-bold text-slate-900 dark:text-white">
+                  <div className="flex justify-between text-xl font-bold text-slate-900 dark:text-white pt-3 border-t border-slate-200 dark:border-slate-700">
                     <span>Total</span>
-                    <span className="text-emerald-600">{formatPrice(getTotal())}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">{formatPrice(total)}</span>
                   </div>
                 </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  disabled={isProcessing}
-                  className="w-full mt-6"
-                  style={{
-                    backgroundImage: 'linear-gradient(to right, #10b981, #14b8a6)',
-                  }}
-                >
+                <Button type="submit" className="w-full mt-6" disabled={isProcessing || loadingProfile} size="lg">
                   {isProcessing ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
                       Memproses...
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2">
-                      <Package className="w-5 h-5" />
-                      Buat Pesanan
-                    </span>
+                    `Bayar ${formatPrice(total)}`
                   )}
                 </Button>
 
-                <p className="text-xs text-center text-slate-500 mt-4">
-                  Dengan melanjutkan, Anda menyetujui syarat dan ketentuan kami
-                </p>
+                <div className="flex items-center justify-center gap-2 mt-4 text-sm text-slate-500">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Pembayaran aman dengan Midtrans</span>
+                </div>
               </motion.div>
             </div>
           </div>
