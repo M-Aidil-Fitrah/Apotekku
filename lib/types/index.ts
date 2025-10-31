@@ -151,3 +151,63 @@ export interface PaginatedResponse<T> {
     pages: number;
   };
 }
+
+// Payment & Transaction Types
+export type PaymentMethodType = 'cod' | 'transfer' | 'ewallet' | 'credit_card' | 'qris';
+export type PaymentStatusType = 'pending' | 'processing' | 'paid' | 'failed' | 'cancelled' | 'refunded' | 'expired';
+export type PaymentGatewayType = 'midtrans' | 'manual' | 'cod';
+export type TransactionType = 'payment' | 'refund' | 'adjustment' | 'fee';
+export type TransactionStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
+
+export interface Payment {
+  _id: string;
+  orderId: string;
+  customerId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: PaymentMethodType;
+  paymentGateway: PaymentGatewayType;
+  status: PaymentStatusType;
+  gatewayTransactionId?: string;
+  gatewayOrderId?: string;
+  snapToken?: string;
+  redirectUrl?: string;
+  gatewayResponse?: any;
+  notificationPayload?: any;
+  signatureVerified?: boolean;
+  fraudStatus?: string;
+  paidAt?: string;
+  expiredAt?: string;
+  cancelledAt?: string;
+  refundedAt?: string;
+  metadata?: Record<string, any>;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Transaction {
+  _id: string;
+  orderId: string;
+  paymentId?: string;
+  customerId: string;
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  status: TransactionStatus;
+  description: string;
+  reference?: string;
+  metadata?: Record<string, any>;
+  notes?: string;
+  processedAt?: string;
+  failedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaymentResponse {
+  token: string;
+  redirect_url: string;
+  paymentId: string;
+  transactionId: string;
+}

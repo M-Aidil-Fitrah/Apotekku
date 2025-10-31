@@ -36,6 +36,10 @@ export interface IOrder extends Document {
   orderNumber: string;
   customerId: mongoose.Types.ObjectId;
   
+  // Payment & Transaction References
+  paymentId?: mongoose.Types.ObjectId;
+  transactionIds?: mongoose.Types.ObjectId[];
+  
   items: IOrderItem[];
   
   // Pricing
@@ -93,6 +97,16 @@ const OrderSchema = new Schema<IOrder>(
       ref: 'Customer',
       required: [true, 'Customer ID wajib diisi'],
     },
+    
+    // Payment & Transaction References
+    paymentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Payment',
+    },
+    transactionIds: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Transaction',
+    }],
     
     items: [{
       productId: {
