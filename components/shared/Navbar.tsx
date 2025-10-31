@@ -18,7 +18,12 @@ const navLinks = [
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { getTotalItems, toggleCart } = useCart();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,7 +109,7 @@ export const Navbar = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                {getTotalItems() > 0 && (
+                {mounted && getTotalItems() > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {getTotalItems()}
                   </span>
@@ -236,7 +241,7 @@ export const Navbar = () => {
                     >
                       <ShoppingCart className="w-5 h-5" />
                       <span>Keranjang</span>
-                      {getTotalItems() > 0 && (
+                      {mounted && getTotalItems() > 0 && (
                         <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                           {getTotalItems()}
                         </span>

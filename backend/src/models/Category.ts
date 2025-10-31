@@ -26,6 +26,7 @@ const CategorySchema = new Schema<ICategory>(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true, // Single index definition
     },
     description: {
       type: String,
@@ -58,7 +59,7 @@ const CategorySchema = new Schema<ICategory>(
   }
 );
 
-CategorySchema.index({ slug: 1 });
+// Indexes (remove duplicate slug - already defined above)
 CategorySchema.index({ isActive: 1 });
 CategorySchema.index({ parentId: 1 });
 

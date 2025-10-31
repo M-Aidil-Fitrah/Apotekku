@@ -63,6 +63,7 @@ const ProductSchema = new Schema<IProduct>(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true, // Single index definition
     },
     sku: {
       type: String,
@@ -70,6 +71,7 @@ const ProductSchema = new Schema<IProduct>(
       unique: true,
       uppercase: true,
       trim: true,
+      index: true, // Single index definition
     },
     description: {
       type: String,
@@ -198,9 +200,7 @@ const ProductSchema = new Schema<IProduct>(
   }
 );
 
-// Indexes for better query performance
-ProductSchema.index({ slug: 1 });
-ProductSchema.index({ sku: 1 });
+// Indexes for better query performance (remove duplicate slug and sku - already defined above)
 ProductSchema.index({ categoryId: 1 });
 ProductSchema.index({ isActive: 1, isFeatured: 1 });
 ProductSchema.index({ price: 1 });

@@ -107,6 +107,7 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: 'marketplace-cart',
+      skipHydration: true,
     }
   )
 );
