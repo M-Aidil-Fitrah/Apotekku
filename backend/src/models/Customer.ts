@@ -16,6 +16,7 @@ export interface ICustomer extends Document {
   email: string;
   passwordHash: string;
   phone: string;
+  role: 'buyer'; // Default role untuk customer
   
   // Addresses
   addresses: IAddress[];
@@ -108,6 +109,12 @@ const CustomerSchema = new Schema<ICustomer>(
       type: String,
       required: [true, 'Nomor telepon wajib diisi'],
       trim: true,
+    },
+    
+    role: {
+      type: String,
+      enum: ['buyer'],
+      default: 'buyer',
     },
     
     addresses: {

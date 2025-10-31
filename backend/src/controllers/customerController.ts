@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Customer } from '../models/Customer';
@@ -32,7 +33,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Generate token
     const token = jwt.sign(
-      { id: customer._id, type: 'customer' },
+      { id: customer._id, type: 'customer', role: 'buyer' },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -46,6 +47,7 @@ export const register = async (req: Request, res: Response) => {
           name: customer.name,
           email: customer.email,
           phone: customer.phone,
+          role: 'buyer',
         },
         token,
       },
@@ -86,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Generate token
     const token = jwt.sign(
-      { id: customer._id, type: 'customer' },
+      { id: customer._id, type: 'customer', role: 'buyer' },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -100,6 +102,7 @@ export const login = async (req: Request, res: Response) => {
           name: customer.name,
           email: customer.email,
           phone: customer.phone,
+          role: 'buyer',
         },
         token,
       },
@@ -114,7 +117,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // Get Customer Profile
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
 
@@ -141,7 +144,7 @@ export const getProfile = async (req: Request, res: Response) => {
 };
 
 // Update Profile
-export const updateProfile = async (req: Request, res: Response) => {
+export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { name, phone, allergies, chronicDiseases } = req.body;
@@ -174,7 +177,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 };
 
 // Add Address
-export const addAddress = async (req: Request, res: Response) => {
+export const addAddress = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
 
@@ -206,7 +209,7 @@ export const addAddress = async (req: Request, res: Response) => {
 };
 
 // Update Address
-export const updateAddress = async (req: Request, res: Response) => {
+export const updateAddress = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { addressId } = req.params;
@@ -239,7 +242,7 @@ export const updateAddress = async (req: Request, res: Response) => {
 };
 
 // Delete Address
-export const deleteAddress = async (req: Request, res: Response) => {
+export const deleteAddress = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { addressId } = req.params;
@@ -272,7 +275,7 @@ export const deleteAddress = async (req: Request, res: Response) => {
 };
 
 // Toggle Wishlist
-export const toggleWishlist = async (req: Request, res: Response) => {
+export const toggleWishlist = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { productId } = req.body;

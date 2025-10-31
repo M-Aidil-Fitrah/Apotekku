@@ -8,18 +8,16 @@ import 'express-async-errors';
 import { connectDB } from './config/database';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
+// Auth Routes
+import authRoutes from './routes/authRoutes'; // Admin/Staff auth
+
 // Marketplace Routes
-import authRoutes from './routes/authRoutes'; // Admin/Apoteker auth
 import customerRoutes from './routes/customerRoutes'; // Customer auth & profile
 import productRoutes from './routes/productRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import orderRoutes from './routes/orderRoutes';
 import reviewRoutes from './routes/reviewRoutes';
-
-// Internal Management Routes (still needed for admin)
-import medicineRoutes from './routes/medicineRoutes';
-import purchaseRoutes from './routes/purchaseRoutes';
-import reportRoutes from './routes/reportRoutes';
+import prescriptionRoutes from './routes/prescriptionRoutes'; // Prescription management
 
 // Load env variables
 dotenv.config();
@@ -41,7 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (req: express.Request, res: express.Response) => {
   res.json({
     success: true,
     message: 'Apotekku Marketplace API is running',
@@ -50,18 +48,17 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes - Marketplace (Public/Customer)
+// API Routes
+// Auth for Admin/Staff
+app.use('/api/auth', authRoutes);
+
+// Marketplace (Public/Customer)
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
-
-// API Routes - Admin/Staff Management
-app.use('/api/auth', authRoutes); // Staff login
-app.use('/api/medicines', medicineRoutes); // Inventory management
-app.use('/api/purchases', purchaseRoutes); // Purchase management
-app.use('/api/reports', reportRoutes); // Reports & analytics
+app.use('/api/prescriptions', prescriptionRoutes);
 
 // Error handling
 app.use(notFound);

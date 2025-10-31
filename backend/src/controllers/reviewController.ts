@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import { Review } from '../models/Review';
 import { Product } from '../models/Product';
 import { Order } from '../models/Order';
 
 // Create review
-export const createReview = async (req: Request, res: Response) => {
+export const createReview = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { productId, orderId, rating, title, comment, images } = req.body;
@@ -138,7 +139,7 @@ async function updateProductRating(productId: string) {
 }
 
 // Admin: Reply to review
-export const replyToReview = async (req: Request, res: Response) => {
+export const replyToReview = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { message } = req.body;
@@ -178,7 +179,7 @@ export const replyToReview = async (req: Request, res: Response) => {
 };
 
 // Admin: Moderate review
-export const moderateReview = async (req: Request, res: Response) => {
+export const moderateReview = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { isApproved, moderationNote } = req.body;

@@ -12,7 +12,16 @@ export const authorize = (...roles: UserRole[]) => {
       return;
     }
 
-    const hasRole = req.user.roles.some(role => roles.includes(role));
+    // Check if user has roles property (User/Staff), Customer doesn't have roles
+    if (!('roles' in req.user)) {
+      res.status(403).json({
+        success: false,
+        message: 'Akses ditolak. Hanya admin/staff yang dapat mengakses resource ini.',
+      });
+      return;
+    }
+
+    const hasRole = req.user.roles.some((role: UserRole) => roles.includes(role));
 
     if (!hasRole) {
       res.status(403).json({

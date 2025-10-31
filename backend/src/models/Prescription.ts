@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export type PrescriptionStatus = 'NEW' | 'REVIEWED' | 'APPROVED' | 'REJECTED' | 'DISPENSED';
 
 export interface IPrescriptionLine {
-  medicineId: mongoose.Types.ObjectId;
+  productId: mongoose.Types.ObjectId;
   dose: string;
   frequency: string;
   duration: string;
@@ -29,9 +29,9 @@ export interface IPrescription extends Document {
 
 const PrescriptionLineSchema = new Schema<IPrescriptionLine>(
   {
-    medicineId: {
+    productId: {
       type: Schema.Types.ObjectId,
-      ref: 'Medicine',
+      ref: 'Product',
       required: true,
     },
     dose: {

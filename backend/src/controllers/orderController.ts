@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '../middleware/auth';
 import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { Customer } from '../models/Customer';
 
 // Customer: Create order
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id; // From auth middleware
     const {
@@ -111,7 +112,7 @@ export const createOrder = async (req: Request, res: Response) => {
 };
 
 // Customer: Get my orders
-export const getMyOrders = async (req: Request, res: Response) => {
+export const getMyOrders = async (req: AuthRequest, res: Response) => {
   try {
     const customerId = req.user?.id;
     const { page = 1, limit = 10, status } = req.query;
@@ -152,7 +153,7 @@ export const getMyOrders = async (req: Request, res: Response) => {
 };
 
 // Customer: Get order detail
-export const getOrderById = async (req: Request, res: Response) => {
+export const getOrderById = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const customerId = req.user?.id;
@@ -180,7 +181,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 };
 
 // Customer: Cancel order
-export const cancelOrder = async (req: Request, res: Response) => {
+export const cancelOrder = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const customerId = req.user?.id;
@@ -229,7 +230,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
 };
 
 // Admin: Get all orders
-export const getAllOrders = async (req: Request, res: Response) => {
+export const getAllOrders = async (req: AuthRequest, res: Response) => {
   try {
     const {
       page = 1,
@@ -282,7 +283,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
 };
 
 // Admin: Update order status
-export const updateOrderStatus = async (req: Request, res: Response) => {
+export const updateOrderStatus = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { status, note, trackingNumber } = req.body;
@@ -327,7 +328,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
 };
 
 // Admin: Verify prescription
-export const verifyPrescription = async (req: Request, res: Response) => {
+export const verifyPrescription = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { verified } = req.body;

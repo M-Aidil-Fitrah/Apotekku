@@ -58,12 +58,12 @@ export const Navbar = () => {
               whileTap={{ scale: 0.95 }}
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg blur-lg opacity-50 group-hover:opacity-100 transition-opacity" />
-                <div className="relative bg-gradient-to-r from-emerald-500 to-teal-500 p-2 rounded-lg">
+                <div className="absolute inset-0 bg-linear-to-r from-emerald-500 to-teal-500 rounded-lg blur-lg opacity-50 group-hover:opacity-100 transition-opacity" />
+                <div className="relative bg-linear-to-r from-emerald-500 to-teal-500 p-2 rounded-lg">
                   <Pill className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
                 Apotekku
               </span>
             </motion.a>
@@ -78,7 +78,7 @@ export const Navbar = () => {
                   whileHover={{ y: -2 }}
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-emerald-500 to-teal-500 group-hover:w-full transition-all duration-300" />
                 </motion.a>
               ))}
             </div>
@@ -155,10 +155,10 @@ export const Navbar = () => {
 
                 {/* Logo */}
                 <div className="flex items-center gap-2 mb-8">
-                  <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-2 rounded-lg">
+                  <div className="bg-linear-to-r from-emerald-500 to-teal-500 p-2 rounded-lg">
                     <Pill className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                  <span className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
                     Apotekku
                   </span>
                 </div>

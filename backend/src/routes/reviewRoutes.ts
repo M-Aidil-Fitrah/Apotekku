@@ -17,7 +17,7 @@ router.get('/product/:productId', getProductReviews);
 router.post('/', authenticate, createReview);
 
 // Admin routes
-router.post('/:id/reply', authenticate, requireRole(['admin', 'apoteker']), replyToReview);
-router.patch('/:id/moderate', authenticate, requireRole(['admin', 'apoteker']), moderateReview);
+router.post('/:id/reply', authenticate, requireRole('admin', 'apoteker'), replyToReview);
+router.patch('/:id/moderate', authenticate, requireRole('admin', 'apoteker'), moderateReview);
 
 export default router;

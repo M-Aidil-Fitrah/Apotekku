@@ -20,8 +20,8 @@ router.get('/:id', authenticate, getOrderById);
 router.patch('/:id/cancel', authenticate, cancelOrder);
 
 // Admin routes
-router.get('/', authenticate, requireRole(['admin', 'apoteker']), getAllOrders);
-router.patch('/:id/status', authenticate, requireRole(['admin', 'apoteker']), updateOrderStatus);
-router.patch('/:id/prescription', authenticate, requireRole(['admin', 'apoteker']), verifyPrescription);
+router.get('/', authenticate, requireRole('admin', 'apoteker'), getAllOrders);
+router.patch('/:id/status', authenticate, requireRole('admin', 'apoteker'), updateOrderStatus);
+router.patch('/:id/prescription', authenticate, requireRole('admin', 'apoteker'), verifyPrescription);
 
 export default router;
